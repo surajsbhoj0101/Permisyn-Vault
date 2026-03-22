@@ -29,7 +29,7 @@ function CustomConnectButton() {
             {!connected ? (
               <button
                 onClick={openConnectModal}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
               >
                 Connect Wallet
               </button>
@@ -63,8 +63,8 @@ function Navbar() {
   return (
     <nav className="sticky top-0 z-20 bg-white/20 px-4 py-3 shadow-sm backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <img className="h-8" src={lightLogo} alt="Permisyn logo" />
+        <div className="flex items-center ">
+          <img src={lightLogo} className='h-8' alt="Permisyn logo" />
         </div>
 
         <div className="hidden items-center gap-2 rounded-full bg-white/40 p-1 backdrop-blur md:flex">

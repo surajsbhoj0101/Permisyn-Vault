@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: permisyn-backend
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://user:password@db:5432/permisyn}
+    depends_on:
+      - db
+    networks:
+      - permisyn-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: permisyn-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      VITE_API_URL: http://backend:5000
+    depends_on:
+      - backend
+    networks:
+      - permisyn-network
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    container_name: permisyn-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: ${POSTGRES_DB:-permisyn}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - permisyn-network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  permisyn-network:
+    driver: bridge
