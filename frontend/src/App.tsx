@@ -1,5 +1,5 @@
-import { ConnectButton } from '@rainbow-me/rainbowkit'
-import { CheckCircle2 } from 'lucide-react'
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { CheckCircle2 } from "lucide-react";
 
 function HeroConnectButton() {
   return (
@@ -12,8 +12,8 @@ function HeroConnectButton() {
         openChainModal,
         openConnectModal,
       }) => {
-        const ready = mounted
-        const connected = ready && account && chain
+        const ready = mounted;
+        const connected = ready && account && chain;
 
         if (!connected) {
           return (
@@ -23,7 +23,7 @@ function HeroConnectButton() {
             >
               Connect Wallet
             </button>
-          )
+          );
         }
 
         return (
@@ -41,10 +41,10 @@ function HeroConnectButton() {
               {account.displayName}
             </button>
           </div>
-        )
+        );
       }}
     </ConnectButton.Custom>
-  )
+  );
 }
 
 function App() {
@@ -71,7 +71,8 @@ function App() {
             </h1>
 
             <p className="mt-5 max-w-2xl font-['Inter'] text-base font-[400] text-slate-600 sm:text-lg">
-              A modern consent layer for web3 apps. Connect a wallet, verify ownership, and manage permission access from one clean interface.
+              A modern consent layer for web3 apps. Connect a wallet, verify
+              ownership, and manage permission access from one clean interface.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -84,7 +85,9 @@ function App() {
               </a>
             </div>
 
-            <p className="mt-3 text-sm text-slate-500">Connect wallet to get started.</p>
+            <p className="mt-3 text-sm text-slate-500">
+              Connect wallet to get started.
+            </p>
 
             <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-600">
               <p className="inline-flex items-center gap-2">
@@ -102,7 +105,7 @@ function App() {
         </div>
       </section>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;

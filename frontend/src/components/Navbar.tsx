@@ -1,14 +1,14 @@
-import { useState } from 'react'
-import lightLogo from '../assets/images/lightLogo.png'
+import { useState } from "react";
+import lightLogo from "../assets/images/lightLogo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Menu, X } from 'lucide-react'
+import { Menu, X } from "lucide-react";
 
 const navItems = [
-  { label: 'Features', href: '#features' },
-  { label: 'Pricing', href: '#pricing' },
-  { label: 'Docs', href: '#docs' },
-  { label: 'Companies', href: '#companies' },
-]
+  { label: "Features", href: "#features" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Docs", href: "#docs" },
+  { label: "Companies", href: "#companies" },
+];
 
 function CustomConnectButton() {
   return (
@@ -21,8 +21,8 @@ function CustomConnectButton() {
         openConnectModal,
         mounted,
       }) => {
-        const ready = mounted
-        const connected = ready && account && chain
+        const ready = mounted;
+        const connected = ready && account && chain;
 
         return (
           <div>
@@ -51,20 +51,20 @@ function CustomConnectButton() {
               </div>
             )}
           </div>
-        )
+        );
       }}
     </ConnectButton.Custom>
-  )
+  );
 }
 
 function Navbar() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
     <nav className="sticky top-0 z-20 bg-white/20 px-4 py-3 shadow-sm backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
         <div className="flex items-center ">
-          <img src={lightLogo} className='h-8' alt="Permisyn logo" />
+          <img src={lightLogo} className="h-8" alt="Permisyn logo" />
         </div>
 
         <div className="hidden items-center gap-2 rounded-full bg-white/40 p-1 backdrop-blur md:flex">
@@ -89,7 +89,11 @@ function Navbar() {
           className="rounded-lg bg-white/40 p-2 text-slate-700 backdrop-blur md:hidden"
           aria-label="Toggle navigation menu"
         >
-          {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          {isMenuOpen ? (
+            <X className="h-5 w-5" />
+          ) : (
+            <Menu className="h-5 w-5" />
+          )}
         </button>
       </div>
 
@@ -113,9 +117,8 @@ function Navbar() {
           </div>
         </div>
       )}
-
     </nav>
-  )
+  );
 }
 
-export default Navbar
+export default Navbar;
