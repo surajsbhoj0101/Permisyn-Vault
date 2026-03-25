@@ -1,27 +1,32 @@
 services:
   backend:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
     env_file:
-      - ./backend/.env
-    environment:
-      DATABASE_URL: postgresql://user:password@db:5432/permisyn
-      NODE_ENV: development
-      PORT: 5000
+      - ./.env
     depends_on:
       - db
+      - redis
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
 
   db:
     image: postgres:16-alpine
     env_file:
-      - ./backend/db.env
+      - ./db.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   postgres_data:

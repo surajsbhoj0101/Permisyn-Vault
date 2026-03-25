@@ -60,8 +60,9 @@ jobs:
       - name: Build frontend
         working-directory: frontend
         run: npm run build
-
+      # -------------------------
       # Contracts (Foundry)
+      # -------------------------
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
 

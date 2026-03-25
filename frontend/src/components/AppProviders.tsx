@@ -25,7 +25,7 @@ type Props = {
 const AppProviders = ({ children }: Props) => {
   return (
     <WagmiProvider config={config}>
-      <RainbowKitProvider modalSize="compact">{children}</RainbowKitProvider>
+      <RainbowKitProvider modalSize="wide">{children}</RainbowKitProvider>
     </WagmiProvider>
   );
 };

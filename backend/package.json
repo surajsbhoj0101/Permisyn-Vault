@@ -7,6 +7,7 @@
     "test": "DOTENV_CONFIG_PATH=.env.test jest",
     "prestart": "npm run prisma:generate",
     "start": "tsx src/server.ts",
+    "predev": "npm run prisma:generate",
     "dev": "tsx watch src/server.ts",
     "pretest": "npm run prisma:generate",
     "prisma:generate": "prisma generate",
@@ -24,14 +25,18 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "ioredis": "^5.10.1",
+    "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
-    "prisma": "^7.5.0"
+    "prisma": "^7.5.0",
+    "siwe": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.5.0",
     "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^8.57.1",

@@ -4,4 +4,4 @@ COPY package*.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
 EXPOSE 5000
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

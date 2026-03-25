@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Zap, Wallet } from "lucide-react";
+import Login from "./components/Login";
 
 function HeroConnectButton() {
   return (
@@ -27,17 +29,19 @@ function HeroConnectButton() {
         }
 
         return (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             <button
               onClick={openChainModal}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg shadow-slate-600/20"
             >
+              <Zap className="h-4 w-4" />
               {chain.name}
             </button>
             <button
               onClick={openAccountModal}
-              className="rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-700"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:from-indigo-700 hover:to-blue-700 hover:shadow-lg shadow-indigo-600/20"
             >
+              <Wallet className="h-4 w-4" />
               {account.displayName}
             </button>
           </div>
@@ -48,6 +52,10 @@ function HeroConnectButton() {
 }
 
 function App() {
+  const [loadingUser, setLoadingUser] = useState(false);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [redNotice, setRedNotice] = useState<string | null>(null);
+
   return (
     <main className="bg-slate-50 text-slate-900">
       <section className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-white via-sky-50/40 to-white">
@@ -57,8 +65,26 @@ function App() {
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.06)_1px,transparent_0)] bg-[size:26px_26px] opacity-30" />
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-4 py-20 md:px-6 md:py-28 lg:grid-cols-2 lg:items-center">
+        <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-4 pb-20 md:px-6 md:pb-28 md:pt-16 lg:grid-cols-2 lg:items-center">
           <div>
+            <Login
+              setLoadingUser={setLoadingUser}
+              setNotice={setNotice}
+              setRedNotice={setRedNotice}
+            />
+
+            {loadingUser ? (
+              <p className="mb-3 text-sm text-slate-500">Checking wallet session...</p>
+            ) : null}
+
+            {notice ? (
+              <p className="mb-3 text-sm text-emerald-700">{notice}</p>
+            ) : null}
+
+            {redNotice ? (
+              <p className="mb-3 text-sm text-red-700">{redNotice}</p>
+            ) : null}
+
             <p className="inline-flex rounded-full border border-sky-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700">
               SaaS permission platform
             </p>

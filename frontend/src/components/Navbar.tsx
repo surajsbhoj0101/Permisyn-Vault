@@ -1,7 +1,7 @@
 import { useState } from "react";
 import lightLogo from "../assets/images/lightLogo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Zap, Wallet } from "lucide-react";
 
 const navItems = [
   { label: "Features", href: "#features" },
@@ -34,19 +34,26 @@ function CustomConnectButton() {
                 Connect Wallet
               </button>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={openChainModal}
-                  className="rounded-lg bg-slate-800 px-3 py-2 text-sm font-medium text-white"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg"
                 >
-                  {chain.name}
+                  <Zap className="h-4 w-4" />
+                  <span>{chain.name}</span>
                 </button>
 
                 <button
                   onClick={openAccountModal}
-                  className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg"
                 >
-                  {account.displayName}
+                  <Wallet className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    {account.displayName}
+                  </span>
+                  <span className="sm:hidden">
+                    {account.displayName?.slice(0, 6)}...
+                  </span>
                 </button>
               </div>
             )}
