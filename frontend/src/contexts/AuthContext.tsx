@@ -2,17 +2,28 @@ import { useContext, createContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import type { ReactNode } from "react";
 import { useAccount } from "wagmi";
-import { SiweMessage } from "siwe";
 import type { AuthResponse } from "../../../shared/auth/type";
 
-const AuthContext = createContext(null);
+type AuthContextValue = {
+  isAuthorized: boolean;
+  role: string | null;
+  userId: string | null;
+  setAuthState: (
+    isAuthorized: boolean,
+    role?: string | null,
+    userId?: string | null,
+  ) => void;
+  clearAuthState: () => void;
+};
+
+const AuthContext = createContext<AuthContextValue | null>(null);
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
 type Props = {
   children: ReactNode; //ReactNode support string | number | JSX | null | array | etc.
 };
 
-const AuthProvider = ({ children }: Props) => {
+export const AuthProvider = ({ children }: Props) => {
   const { isConnected } = useAccount();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [role, setRole] = useState<string | null>(null);
@@ -54,6 +65,7 @@ const AuthProvider = ({ children }: Props) => {
           response.data.userId,
         );
       } catch (error) {
+        console.error("Error checking auth status:", error);
         clearAuthState();
       }
     };
@@ -87,3 +99,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthProvider;

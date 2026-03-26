@@ -3,10 +3,10 @@ import { SiweMessage } from "siwe";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { BrowserProvider } from "ethers";
-import type { AuthResponse } from "../../../shared/auth/type";
+import type { AuthResponse, nonceResponse } from "../../../shared/auth/type";
 import axios from "axios";
+import type { AxiosError } from "axios";
 import { useAuth } from "../contexts/AuthContext";
-import { nonceResponse } from "../../../shared/auth/type";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
@@ -91,7 +91,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
 
       redirectByRole(role);
     } catch (err) {
-      console.log("Not authorized, need to sign in");
+      console.log("Not authorized, need to sign in", err);
       pushNotice("Please sign the message to continue");
       await handleSiwe();
     } finally {
@@ -101,14 +101,18 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
 
   const handleSiwe = async () => {
     try {
-      const nonceRes = await axios.get<nonceResponse>(`${API_BASE_URL}/api/auth/get-nonce`, {
-        withCredentials: true,
-      });
+      const nonceRes = await axios.get<nonceResponse>(
+        `${API_BASE_URL}/api/auth/get-nonce`,
+        {
+          withCredentials: true,
+        },
+      );
 
       const message = new SiweMessage({
         domain: window.location.host,
         address,
-        statement: "Welcome to Permisyn Vault! Sign in to manage your permissions.",
+        statement:
+          "Welcome to Permisyn Vault! Sign in to manage your permissions.",
         uri: window.location.origin,
         version: "1",
         chainId,
@@ -128,22 +132,55 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
       pushNotice("Wallet verified successfully");
       await checkAuth();
     } catch (error) {
-      setError("Wallet sign-in failed");
-      pushRedNotice("Wallet sign-in failed. Please try again.");
+      const apiError = error as AxiosError<{ error?: string }>;
+      const message =
+        apiError.response?.data?.error ||
+        "Wallet sign-in failed. Please try again.";
+      setError(message);
+      pushRedNotice(message);
     }
   };
 
   const handleRoleModalSubmit = async () => {
+    if (!fullName.trim()) {
+      pushRedNotice("Please enter full name");
+      return;
+    }
+
     if (!selectedRole) {
       pushRedNotice("Please choose a role to continue");
       return;
     }
 
-    setAuthState(true, selectedRole, address ?? null);
-    setIsSelectingRole(false);
-    setModalStep(1);
-    pushNotice("Profile details saved");
-    redirectByRole(selectedRole);
+    try {
+      setLoadingUser(true);
+      const response = await axios.post<AuthResponse>(
+        `${API_BASE_URL}/api/auth/set-role`,
+        {
+          fullName: fullName.trim(),
+          companyName: companyName.trim() || null,
+          role: selectedRole,
+        },
+        { withCredentials: true },
+      );
+
+      setAuthState(
+        response.data.isAuthorized,
+        response.data.role,
+        response.data.userId,
+      );
+      setIsSelectingRole(false);
+      setModalStep(1);
+      pushNotice("Profile details saved");
+
+      if (response.data.role) {
+        redirectByRole(response.data.role);
+      }
+    } catch {
+      pushRedNotice("Failed to save profile details");
+    } finally {
+      setLoadingUser(false);
+    }
   };
 
   const canGoNext = fullName.trim().length > 0;
@@ -153,13 +190,17 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
       {isSelectingRole ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/45 p-4">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-xl font-semibold text-slate-900">Complete Your Profile</h2>
+            <h2 className="text-xl font-semibold text-slate-900">
+              Complete Your Profile
+            </h2>
             <p className="mt-1 text-sm text-slate-600">Step {modalStep} of 2</p>
 
             {modalStep === 1 ? (
               <div className="mt-5 space-y-4">
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Full name</label>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
+                    Full name
+                  </label>
                   <input
                     type="text"
                     value={fullName}
@@ -170,7 +211,9 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-slate-700">Company (optional)</label>
+                  <label className="mb-1 block text-sm font-medium text-slate-700">
+                    Company (optional)
+                  </label>
                   <input
                     type="text"
                     value={companyName}
@@ -182,7 +225,9 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
               </div>
             ) : (
               <div className="mt-5 space-y-3">
-                <p className="text-sm font-medium text-slate-700">Select your role</p>
+                <p className="text-sm font-medium text-slate-700">
+                  Select your role
+                </p>
                 {["admin", "manager", "viewer"].map((roleOption) => (
                   <button
                     key={roleOption}
@@ -230,7 +275,9 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
               )}
             </div>
 
-            {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
+            {error ? (
+              <p className="mt-3 text-sm text-red-600">{error}</p>
+            ) : null}
           </div>
         </div>
       ) : null}

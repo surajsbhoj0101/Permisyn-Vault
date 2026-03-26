@@ -6,6 +6,7 @@ import {
 } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
 import { baseSepolia } from "viem/chains";
+import { AuthProvider } from "../contexts/AuthContext";
 //QueryClient — creates an instance of React Query’s core client, which manages all your queries, caching, and data syncing.
 //QueryClientProvider — a React context provider that wraps your app and makes the QueryClient available to all components for using React Query features.
 
@@ -25,7 +26,9 @@ type Props = {
 const AppProviders = ({ children }: Props) => {
   return (
     <WagmiProvider config={config}>
-      <RainbowKitProvider modalSize="wide">{children}</RainbowKitProvider>
+      <AuthProvider>
+        <RainbowKitProvider modalSize="wide">{children}</RainbowKitProvider>
+      </AuthProvider>
     </WagmiProvider>
   );
 };
