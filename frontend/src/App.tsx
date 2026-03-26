@@ -74,7 +74,9 @@ function App() {
             />
 
             {loadingUser ? (
-              <p className="mb-3 text-sm text-slate-500">Checking wallet session...</p>
+              <p className="mb-3 text-sm text-slate-500">
+                Checking wallet session...
+              </p>
             ) : null}
 
             {notice ? (

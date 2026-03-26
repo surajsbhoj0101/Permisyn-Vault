@@ -6,3 +6,13 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+	id            String   @id @default(cuid())
+	walletAddress String   @unique
+	fullName      String?
+	companyName   String?
+	role          String?
+	createdAt     DateTime @default(now())
+	updatedAt     DateTime @updatedAt
+}
+

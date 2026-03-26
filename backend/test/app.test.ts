@@ -1,4 +1,11 @@
 import request from "supertest";
+jest.mock("../src/routes/auth.routes", () => {
+  return {
+    __esModule: true,
+    default: (_req: unknown, _res: unknown, next: () => void) => next(),
+  };
+});
+
 import app from "../src/app";
 
 describe("GET /", () => {
