@@ -1,4 +1,12 @@
 import request from "supertest";
+jest.mock("../src/routes/auth.routes", () => {
+  const express = require("express");
+  return {
+    __esModule: true,
+    default: express.Router(),
+  };
+});
+
 import app from "../src/app";
 
 describe("GET /", () => {
