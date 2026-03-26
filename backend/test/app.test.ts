@@ -1,9 +1,8 @@
 import request from "supertest";
 jest.mock("../src/routes/auth.routes", () => {
-  const express = require("express");
   return {
     __esModule: true,
-    default: express.Router(),
+    default: (_req: unknown, _res: unknown, next: () => void) => next(),
   };
 });
 
