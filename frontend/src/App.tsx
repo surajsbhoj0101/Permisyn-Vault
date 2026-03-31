@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { CheckCircle2, Zap, Wallet } from "lucide-react";
+import {
+  CheckCircle2,
+  LockKeyhole,
+  ShieldCheck,
+  Zap,
+  Wallet,
+} from "lucide-react";
 import Login from "./components/Login";
 
 function HeroConnectButton() {
@@ -21,7 +27,7 @@ function HeroConnectButton() {
           return (
             <button
               onClick={openConnectModal}
-              className="rounded-xl bg-gradient-to-r from-blue-700 to-sky-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-200 transition hover:from-blue-800 hover:to-sky-600"
+              className="rounded-xl bg-linear-to-r from-teal-700 to-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-100 transition hover:from-teal-800 hover:to-cyan-700"
             >
               Connect Wallet
             </button>
@@ -32,14 +38,14 @@ function HeroConnectButton() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={openChainModal}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-slate-700 to-slate-800 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg shadow-slate-600/20"
+              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
             >
               <Zap className="h-4 w-4" />
               {chain.name}
             </button>
             <button
               onClick={openAccountModal}
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3 text-sm font-semibold text-white transition duration-200 hover:from-indigo-700 hover:to-blue-700 hover:shadow-lg shadow-indigo-600/20"
+              className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
             >
               <Wallet className="h-4 w-4" />
               {account.displayName}
@@ -57,15 +63,15 @@ function App() {
   const [redNotice, setRedNotice] = useState<string | null>(null);
 
   return (
-    <main className="bg-slate-50 text-slate-900">
-      <section className="relative overflow-hidden border-b border-slate-200 bg-gradient-to-b from-white via-sky-50/40 to-white">
+    <main className="text-slate-900">
+      <section className="relative overflow-hidden border-b border-slate-200/80">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 top-12 h-80 w-80 rounded-full bg-sky-200/45 blur-3xl" />
-          <div className="absolute right-0 top-4 h-72 w-72 rounded-full bg-blue-200/35 blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.06)_1px,transparent_0)] bg-[size:26px_26px] opacity-30" />
+          <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-teal-100/70 blur-3xl" />
+          <div className="absolute right-0 top-6 h-72 w-72 rounded-full bg-cyan-100/65 blur-3xl" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(30,41,59,0.05)_1px,transparent_0)] bg-size-[24px_24px] opacity-40" />
         </div>
 
-        <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-4 pb-20 md:px-6 md:pb-28 md:pt-16 lg:grid-cols-2 lg:items-center">
+        <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-4 pb-20 pt-8 md:px-6 md:pb-24 md:pt-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
           <div>
             <Login
               setLoadingUser={setLoadingUser}
@@ -87,29 +93,30 @@ function App() {
               <p className="mb-3 text-sm text-red-700">{redNotice}</p>
             ) : null}
 
-            <p className="inline-flex rounded-full border border-sky-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-sky-700">
-              SaaS permission platform
+            <p className="inline-flex rounded-full border border-teal-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">
+              Consent Infrastructure for Web3 SaaS
             </p>
 
-            <h1 className="mt-5 max-w-3xl font-['Inter'] text-4xl font-[700] leading-tight sm:text-5xl lg:text-6xl">
-              Own Your Data.
-              <span className="block bg-gradient-to-r from-blue-700 to-sky-500 bg-clip-text text-transparent">
-                Control Your Consent.
+            <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
+              Trust-Centered Access,
+              <span className="block bg-linear-to-r from-teal-700 to-cyan-600 bg-clip-text text-transparent">
+                Built for Product Teams.
               </span>
             </h1>
 
-            <p className="mt-5 max-w-2xl font-['Inter'] text-base font-[400] text-slate-600 sm:text-lg">
-              A modern consent layer for web3 apps. Connect a wallet, verify
-              ownership, and manage permission access from one clean interface.
+            <p className="mt-5 max-w-2xl text-base text-slate-600 sm:text-lg">
+              Permisyn gives your app a secure identity and consent workflow
+              with wallet-based authentication, role-aware onboarding, and
+              auditable permission controls.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <HeroConnectButton />
               <a
-                href="#"
-                className="rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                href="#features"
+                className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
               >
-                Learn More
+                Explore Features
               </a>
             </div>
 
@@ -120,16 +127,44 @@ function App() {
             <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-600">
               <p className="inline-flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                Fast onboarding
+                Fast role onboarding
               </p>
               <p className="inline-flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                Wallet-first security
+                Wallet-first verification
               </p>
             </div>
           </div>
 
-          <div className="hidden lg:block" aria-hidden="true" />
+          <div className="grid gap-4" aria-hidden="true" id="features">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Security
+              </p>
+              <p className="mt-2 flex items-center gap-2 text-lg font-bold text-slate-900">
+                <LockKeyhole className="h-5 w-5 text-teal-700" />
+                SIWE-Based Authentication
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                Users prove wallet ownership before any onboarding or permission
+                action is allowed.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
+                Governance
+              </p>
+              <p className="mt-2 flex items-center gap-2 text-lg font-bold text-slate-900">
+                <ShieldCheck className="h-5 w-5 text-teal-700" />
+                Account & Role Profiles
+              </p>
+              <p className="mt-2 text-sm text-slate-600">
+                Distinct User and Developer paths keep consent ownership and
+                data access responsibilities clear.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
     </main>

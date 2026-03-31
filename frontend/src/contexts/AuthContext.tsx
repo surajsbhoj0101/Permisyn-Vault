@@ -1,7 +1,7 @@
 import { useContext, createContext, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import type { ReactNode } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useDisconnect } from "wagmi";
 import type { AuthResponse } from "../../../shared/auth/type";
 
 type AuthContextValue = {
@@ -25,6 +25,7 @@ type Props = {
 
 export const AuthProvider = ({ children }: Props) => {
   const { isConnected } = useAccount();
+  const { disconnect } = useDisconnect();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [role, setRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
@@ -40,6 +41,7 @@ export const AuthProvider = ({ children }: Props) => {
   };
 
   const clearAuthState = () => {
+    disconnect();
     setIsAuthorized(false);
     setRole(null);
     setUserId(null);
@@ -58,6 +60,7 @@ export const AuthProvider = ({ children }: Props) => {
           { withCredentials: true },
         );
         if (!isActive) return;
+        console.log("Auth status:", response.data);
 
         setAuthState(
           response.data.isAuthorized,
@@ -86,7 +89,7 @@ export const AuthProvider = ({ children }: Props) => {
       setAuthState,
       clearAuthState,
     }),
-    [isAuthorized, role, userId],
+    [isAuthorized, role, userId, isConnected],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

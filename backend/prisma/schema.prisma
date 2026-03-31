@@ -1,18 +1,40 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
+}
+
+enum Role {
+    USER  // owns data (vault owner)
+    DEVELOPER // requests & accesses data
+}
+
+model Account {
+    id            String   @id @default(cuid())
+    walletAddress String   @unique
+    role          Role?
+	email 	   String?  @unique
+    user          User?      
+    developer     Developer? 
+    createdAt     DateTime @default(now())
+    updatedAt     DateTime @updatedAt
 }
 
 model User {
-	id            String   @id @default(cuid())
-	walletAddress String   @unique
-	fullName      String?
-	companyName   String?
-	role          String?
-	createdAt     DateTime @default(now())
-	updatedAt     DateTime @updatedAt
+    accountId String   @id
+    username  String @unique
+    account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
 }
 
+model Developer {
+    accountId   String   @id
+    username    String @unique
+    companyName String?
+    account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    createdAt   DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+}

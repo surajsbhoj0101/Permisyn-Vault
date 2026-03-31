@@ -1,7 +1,7 @@
 import { useState } from "react";
-import lightLogo from "../assets/images/lightLogo.png";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Menu, X, Zap, Wallet } from "lucide-react";
+import { Logout } from "./Logout";
 
 const navItems = [
   { label: "Features", href: "#features" },
@@ -29,7 +29,7 @@ function CustomConnectButton() {
             {!connected ? (
               <button
                 onClick={openConnectModal}
-                className="rounded-lg bg-indigo-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-lg bg-linear-to-r from-teal-700 to-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:from-teal-800 hover:to-cyan-700"
               >
                 Connect Wallet
               </button>
@@ -37,7 +37,7 @@ function CustomConnectButton() {
               <div className="flex items-center gap-3">
                 <button
                   onClick={openChainModal}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-slate-700 to-slate-800 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg"
+                  className="flex items-center gap-2 rounded-lg bg-linear-to-r from-slate-700 to-slate-800 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg"
                 >
                   <Zap className="h-4 w-4" />
                   <span>{chain.name}</span>
@@ -45,7 +45,7 @@ function CustomConnectButton() {
 
                 <button
                   onClick={openAccountModal}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-500 to-indigo-600 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-indigo-600 hover:to-indigo-700 hover:shadow-lg"
+                  className="flex items-center gap-2 rounded-lg bg-linear-to-r from-teal-700 to-cyan-600 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-teal-800 hover:to-cyan-700 hover:shadow-lg"
                 >
                   <Wallet className="h-4 w-4" />
                   <span className="hidden sm:inline">
@@ -55,6 +55,8 @@ function CustomConnectButton() {
                     {account.displayName?.slice(0, 6)}...
                   </span>
                 </button>
+
+                <Logout />
               </div>
             )}
           </div>
@@ -68,18 +70,20 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-20 bg-white/20 px-4 py-3 shadow-sm backdrop-blur-xl">
+    <nav className="sticky top-0 z-30 border-b border-teal-100/90 bg-linear-to-r from-white/90 via-teal-50/70 to-cyan-50/75 px-4 py-3 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
-        <div className="flex items-center ">
-          <img src={lightLogo} className="h-8" alt="Permisyn logo" />
+        <div className="flex items-center">
+          <span className="bg-linear-to-r from-teal-700 to-cyan-600 bg-clip-text text-base font-extrabold tracking-wide text-transparent sm:text-lg">
+            Permisyn Vault
+          </span>
         </div>
 
-        <div className="hidden items-center gap-2 rounded-full bg-white/40 p-1 backdrop-blur md:flex">
+        <div className="hidden items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1 md:flex">
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="rounded-full px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-white hover:text-slate-900"
+              className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
             >
               {item.label}
             </a>
@@ -93,7 +97,7 @@ function Navbar() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="rounded-lg bg-white/40 p-2 text-slate-700 backdrop-blur md:hidden"
+          className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 md:hidden"
           aria-label="Toggle navigation menu"
         >
           {isMenuOpen ? (
@@ -105,13 +109,13 @@ function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="mx-auto mt-3 w-full max-w-6xl rounded-xl bg-white/45 p-3 shadow-sm backdrop-blur md:hidden">
+        <div className="mx-auto mt-3 w-full max-w-6xl rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
           <div className="flex flex-col gap-1">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}

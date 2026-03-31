@@ -33,7 +33,7 @@ jobs:
           --health-timeout 3s
           --health-retries 20
     env:
-      DATABASE_URL: postgresql://user:password@localhost:5432/permisyn
+      DATABASE_URL: postgresql://user:password@localhost:5432/permisyn?schema=public
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       NODE_ENV: test
