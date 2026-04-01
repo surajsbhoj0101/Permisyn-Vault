@@ -7,6 +7,7 @@ import type { AuthResponse, NonceResponse } from "../../../shared/auth/type";
 import axios from "axios";
 import type { AxiosError } from "axios";
 import { useAuth } from "../contexts/AuthContext";
+import type { Role } from "../../../shared/role/type";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
@@ -40,8 +41,12 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
     checkAuth();
   }, [address, isConnected]);
 
-  const redirectByRole = (role: string) => {
+  const redirectByRole = (role: Role) => {
     console.log("User role:", role);
+    if (role === "DEVELOPER") {
+      navigate("/developer/dashboard");
+      return;
+    }
     navigate("/");
   };
 
@@ -70,10 +75,15 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
         return;
       }
 
-      if (!role) {
+      if (role === "GUEST") {
+        setAuthState(isAuthorized, "GUEST", userId);
         pushNotice("Please complete onboarding");
         navigate("/onboarding");
         return;
+      }
+
+      if (!role) {
+        throw new Error("User role is missing");
       }
 
       setAuthState(isAuthorized, role, userId);

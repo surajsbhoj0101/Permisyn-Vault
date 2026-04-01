@@ -105,7 +105,7 @@ export const verifySiwe = async (req: Request, res: Response) => {
       update: {},
       create: {
         walletAddress,
-        role: Role.USER,
+        role: Role.GUEST,
       },
     });
 
@@ -279,11 +279,6 @@ export const setRoleSelection = async (req: Request, res: Response) => {
   }
 
   try {
-    const verifiedEmail = await redis.get(`otp-verified:${decoded.userId}`);
-    if (!verifiedEmail || verifiedEmail !== normalizedEmail) {
-      return res.status(400).json({ error: "OTP verification required" });
-    }
-
     const account = await prisma.account.findUnique({
       where: { id: decoded.userId },
       include: {
@@ -294,6 +289,18 @@ export const setRoleSelection = async (req: Request, res: Response) => {
 
     if (!account) {
       return res.status(404).json({ error: "Account not found" });
+    }
+
+    // Hard check: only GUEST role can onboard
+    if (account.role !== Role.GUEST) {
+      return res
+        .status(403)
+        .json({ error: "Only guests can complete onboarding" });
+    }
+
+    const verifiedEmail = await redis.get(`otp-verified:${decoded.userId}`);
+    if (!verifiedEmail || verifiedEmail !== normalizedEmail) {
+      return res.status(400).json({ error: "OTP verification required" });
     }
 
     if (role === Role.USER) {

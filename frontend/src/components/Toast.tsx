@@ -18,7 +18,7 @@ function Toast({
   return (
     <div className="fixed right-4 top-4 z-50 flex w-full max-w-sm flex-col gap-2">
       {notice ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 shadow-sm">
+        <div className="saas-card rounded-xl border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           <div className="flex items-start justify-between gap-3">
             <p>{notice}</p>
             <button
@@ -34,7 +34,7 @@ function Toast({
       ) : null}
 
       {redNotice ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm">
+        <div className="saas-card rounded-xl border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           <div className="flex items-start justify-between gap-3">
             <p>{redNotice}</p>
             <button

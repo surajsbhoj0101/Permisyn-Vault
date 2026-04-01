@@ -9,6 +9,7 @@ datasource db {
 enum Role {
     USER  // owns data (vault owner)
     DEVELOPER // requests & accesses data
+    GUEST // verified SIWE but not onboarded yet
 }
 
 model Account {
