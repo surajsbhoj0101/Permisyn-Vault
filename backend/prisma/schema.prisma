@@ -19,13 +19,13 @@ model Account {
 	email 	   String?  @unique
     user          User?      
     developer     Developer? 
-    username    String? @unique
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 }
 
 model User {
     accountId String   @id
+    username  String @unique
     account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -33,6 +33,7 @@ model User {
 
 model Developer {
     accountId   String   @id
+    username    String @unique
     companyName String?
     account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
     createdAt   DateTime @default(now())
