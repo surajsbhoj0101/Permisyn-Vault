@@ -139,57 +139,41 @@ export const verifySiwe = async (req: Request, res: Response) => {
 export const checkUsernameTaken = async (req: Request, res: Response) => {
   const username = req.params.username as string | undefined;
   const normalizedUsername = (username || "").trim();
-  const usernameKey = `username:${normalizedUsername}`;
 
   if (!normalizedUsername) {
     return res.status(400).json({ error: "Username is required" });
   }
-
+  let existingUser: string | null;
   try {
-    const existingUsername = await redis.get(usernameKey);
-    if (existingUsername) {
-      return res.status(200).json({ isTaken: true });
-    }
-
-    const existingAccount = await prisma.account.findUnique({
-      where: { username: normalizedUsername },
-    });
-
-    if (existingAccount) {
-      await redis.set(usernameKey, "1");
-      return res.status(200).json({ isTaken: true });
-    }
-
-    return res.status(200).json({ isTaken: false });
+    existingUser = await redis.get(`username:${normalizedUsername}`);
   } catch (error) {
-    console.error("checkUsernameTaken error:", error);
+    console.error("Redis error in checkUsernameTaken:", error);
     return res
       .status(500)
       .json({ error: "Failed to check username availability" });
+  }
+
+  if (existingUser) {
+    return res.status(200).json({ isTaken: true });
+  } else {
+    return res.status(200).json({ isTaken: false });
   }
 };
 
 export const checkEmailTaken = async (req: Request, res: Response) => {
   const email = req.params.email as string | undefined;
   const normalizedEmail = (email || "").trim().toLowerCase();
-  const emailKey = `email:${normalizedEmail}`;
 
   if (!normalizedEmail) {
     return res.status(400).json({ error: "Email is required" });
   }
 
   try {
-    const existingEmail = await redis.get(emailKey);
-    if (existingEmail) {
-      return res.status(200).json({ isTaken: true });
-    }
-
     const existingAccount = await prisma.account.findUnique({
       where: { email: normalizedEmail },
     });
 
     if (existingAccount) {
-      await redis.set(emailKey, "1");
       return res.status(200).json({ isTaken: true });
     } else {
       return res.status(200).json({ isTaken: false });
@@ -328,9 +312,10 @@ export const setRoleSelection = async (req: Request, res: Response) => {
 
       await prisma.user.upsert({
         where: { accountId: account.id },
-        update: {},
+        update: { username: normalizedUsername },
         create: {
           accountId: account.id,
+          username: normalizedUsername,
         },
       });
     }
@@ -345,10 +330,12 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       await prisma.developer.upsert({
         where: { accountId: account.id },
         update: {
+          username: normalizedUsername,
           companyName: companyName?.trim() || null,
         },
         create: {
           accountId: account.id,
+          username: normalizedUsername,
           companyName: companyName?.trim() || null,
         },
       });
@@ -359,7 +346,6 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       data: {
         role: role as Role,
         email: normalizedEmail,
-        username: normalizedUsername,
       },
     });
 
@@ -370,7 +356,6 @@ export const setRoleSelection = async (req: Request, res: Response) => {
     });
     setAuthCookie(res, token);
     await redis.set(`username:${normalizedUsername}`, "1");
-    await redis.set(`email:${normalizedEmail}`, "1");
     await redis.del(`otp-verified:${decoded.userId}`);
 
     return res.status(200).json({
