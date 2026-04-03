@@ -1,10 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import Navbar from "./components/Navbar.jsx";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import Navbar from "./components/Navbar";
 import AppProviders from "./components/AppProviders.tsx";
 import AuthProvider from "./contexts/AuthContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Overview from "./pages/developer_pages/Overview.tsx";
+import ManageApps from "./pages/developer_pages/ManageApps.tsx";
 
 import "./index.css";
 import App from "./App.tsx";
@@ -18,24 +20,41 @@ const queryClient = new QueryClient({
   },
 });
 
+function PublicLayout() {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+    </>
+  );
+}
+
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <>
-        <Navbar />
-        <App />
-      </>
-    ),
+    element: <PublicLayout />,
+    children: [
+      {
+        path: "/",
+        element: <App />,
+      },
+      {
+        path: "/onboarding",
+        element: <Onboarding />,
+      },
+    ],
   },
   {
-    path: "/onboarding",
-    element: (
-      <>
-        <Navbar />
-        <Onboarding />
-      </>
-    ),
+    path: "/developer",
+    children: [
+      {
+        path: "overview",
+        element: <Overview />,
+      },
+      {
+        path: "manage-apps",
+        element: <ManageApps />,
+      },
+    ],
   },
 ]);
 

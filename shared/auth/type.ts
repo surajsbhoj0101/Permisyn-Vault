@@ -4,6 +4,7 @@ export type AuthResponse = {
     isAuthorized: boolean;
     role: Role | null;
     userId: string | null;
+    username: string | null;
 };
 
 export type NonceResponse = {

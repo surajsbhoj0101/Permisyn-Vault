@@ -25,19 +25,19 @@ function CustomConnectButton() {
         const connected = ready && account && chain;
 
         return (
-          <div>
+          <div className="w-full">
             {!connected ? (
               <button
                 onClick={openConnectModal}
-                className="rounded-lg bg-linear-to-r from-teal-700 to-cyan-600 px-4 py-2 text-sm font-semibold text-white transition hover:from-teal-800 hover:to-cyan-700"
+                className="saas-btn-primary w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition md:w-auto"
               >
                 Connect Wallet
               </button>
             ) : (
-              <div className="flex items-center gap-3">
+              <div className="flex w-full flex-col items-stretch gap-2 md:w-auto md:flex-row md:items-center">
                 <button
                   onClick={openChainModal}
-                  className="flex items-center gap-2 rounded-lg bg-linear-to-r from-slate-700 to-slate-800 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-slate-600 hover:to-slate-700 hover:shadow-lg"
+                  className="saas-btn-secondary inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition"
                 >
                   <Zap className="h-4 w-4" />
                   <span>{chain.name}</span>
@@ -45,7 +45,7 @@ function CustomConnectButton() {
 
                 <button
                   onClick={openAccountModal}
-                  className="flex items-center gap-2 rounded-lg bg-linear-to-r from-teal-700 to-cyan-600 px-3 py-2 text-sm font-medium text-white transition duration-200 hover:from-teal-800 hover:to-cyan-700 hover:shadow-lg"
+                  className="saas-btn-primary inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold transition"
                 >
                   <Wallet className="h-4 w-4" />
                   <span className="hidden sm:inline">
@@ -70,20 +70,27 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-30 border-b border-teal-100/90 bg-linear-to-r from-white/90 via-teal-50/70 to-cyan-50/75 px-4 py-3 backdrop-blur-xl">
+    <nav
+      className="sticky top-0 z-30 border-b bg-white/88 px-4 py-3 backdrop-blur-xl"
+      style={{ borderColor: "var(--border)" }}
+    >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
-        <div className="flex items-center">
-          <span className="bg-linear-to-r from-teal-700 to-cyan-600 bg-clip-text text-base font-extrabold tracking-wide text-transparent sm:text-lg">
-            Permisyn Vault
+        <div className="flex items-center gap-2">
+          <span className="text-xl text-blue-600 font-extrabold tracking-wide">
+            PERMISYN VAULT
           </span>
         </div>
 
-        <div className="hidden items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1 md:flex">
+        <div
+          className="hidden items-center gap-1 rounded-2xl border bg-white p-1 md:flex"
+          style={{ borderColor: "var(--border)" }}
+        >
           {navItems.map((item) => (
             <a
               key={item.label}
               href={item.href}
-              className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              className="rounded-xl px-3 py-2 text-sm font-semibold transition"
+              style={{ color: "var(--muted)" }}
             >
               {item.label}
             </a>
@@ -97,7 +104,8 @@ function Navbar() {
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="rounded-xl border border-slate-200 bg-white p-2 text-slate-700 md:hidden"
+          className="rounded-xl border bg-white p-2 md:hidden"
+          style={{ borderColor: "var(--border)", color: "var(--text)" }}
           aria-label="Toggle navigation menu"
         >
           {isMenuOpen ? (
@@ -109,13 +117,14 @@ function Navbar() {
       </div>
 
       {isMenuOpen && (
-        <div className="mx-auto mt-3 w-full max-w-6xl rounded-2xl border border-slate-200 bg-white p-3 shadow-sm md:hidden">
+        <div className="saas-card mx-auto mt-3 w-full max-w-6xl rounded-2xl p-3 md:hidden">
           <div className="flex flex-col gap-1">
             {navItems.map((item) => (
               <a
                 key={item.label}
                 href={item.href}
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                className="rounded-xl px-3 py-2 text-sm font-semibold transition"
+                style={{ color: "var(--text)" }}
                 onClick={() => setIsMenuOpen(false)}
               >
                 {item.label}
@@ -123,7 +132,10 @@ function Navbar() {
             ))}
           </div>
 
-          <div className="mt-3 pt-3">
+          <div
+            className="mt-3 border-t pt-3"
+            style={{ borderColor: "var(--border)" }}
+          >
             <CustomConnectButton />
           </div>
         </div>

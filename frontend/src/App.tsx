@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import {
-  CheckCircle2,
-  LockKeyhole,
-  ShieldCheck,
-  Zap,
-  Wallet,
-} from "lucide-react";
+import { CheckCircle2, Zap, Wallet } from "lucide-react";
 import Login from "./components/Login";
 
 function HeroConnectButton() {
@@ -27,7 +21,7 @@ function HeroConnectButton() {
           return (
             <button
               onClick={openConnectModal}
-              className="rounded-xl bg-linear-to-r from-teal-700 to-cyan-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-100 transition hover:from-teal-800 hover:to-cyan-700"
+              className="saas-btn-primary rounded-xl px-6 py-3 text-sm font-semibold shadow-lg shadow-blue-100 transition"
             >
               Connect Wallet
             </button>
@@ -38,14 +32,14 @@ function HeroConnectButton() {
           <div className="flex flex-wrap gap-3">
             <button
               onClick={openChainModal}
-              className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 transition hover:bg-slate-100"
+              className="saas-btn-secondary flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition"
             >
               <Zap className="h-4 w-4" />
               {chain.name}
             </button>
             <button
               onClick={openAccountModal}
-              className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+              className="saas-btn-primary flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition"
             >
               <Wallet className="h-4 w-4" />
               {account.displayName}
@@ -63,16 +57,23 @@ function App() {
   const [redNotice, setRedNotice] = useState<string | null>(null);
 
   return (
-    <main className="text-slate-900">
-      <section className="relative overflow-hidden border-b border-slate-200/80">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -left-24 top-16 h-72 w-72 rounded-full bg-teal-100/70 blur-3xl" />
-          <div className="absolute right-0 top-6 h-72 w-72 rounded-full bg-cyan-100/65 blur-3xl" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(30,41,59,0.05)_1px,transparent_0)] bg-size-[24px_24px] opacity-40" />
-        </div>
+    <main
+      className="saas-shell relative min-h-screen"
+      style={{ color: "var(--text)" }}
+    >
+      <section
+        className="relative overflow-hidden border-b"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <div className="relative mx-auto grid w-full max-w-6xl gap-10 px-4 pb-16 pt-8 md:px-6 md:pb-20 md:pt-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
+          <div className="saas-fade-up">
+            <p
+              className="inline-flex items-center gap-2 rounded-full border bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.11em]"
+              style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+            >
+              Web3 Access Control
+            </p>
 
-        <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-4 pb-20 pt-8 md:px-6 md:pb-24 md:pt-14 lg:grid-cols-[1.1fr_.9fr] lg:items-center">
-          <div>
             <Login
               setLoadingUser={setLoadingUser}
               setNotice={setNotice}
@@ -80,89 +81,118 @@ function App() {
             />
 
             {loadingUser ? (
-              <p className="mb-3 text-sm text-slate-500">
+              <p
+                className="mb-3 mt-4 text-sm"
+                style={{ color: "var(--muted)" }}
+              >
                 Checking wallet session...
               </p>
             ) : null}
 
             {notice ? (
-              <p className="mb-3 text-sm text-emerald-700">{notice}</p>
+              <p className="mb-3 mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+                {notice}
+              </p>
             ) : null}
 
             {redNotice ? (
-              <p className="mb-3 text-sm text-red-700">{redNotice}</p>
+              <p className="mb-3 mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {redNotice}
+              </p>
             ) : null}
 
-            <p className="inline-flex rounded-full border border-teal-200 bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-teal-700">
-              Consent Infrastructure for Web3 SaaS
-            </p>
-
-            <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-6xl">
-              Trust-Centered Access,
-              <span className="block bg-linear-to-r from-teal-700 to-cyan-600 bg-clip-text text-transparent">
-                Built for Product Teams.
+            <h1 className="mt-5 max-w-3xl text-4xl font-extrabold leading-tight sm:text-5xl lg:text-[3.45rem]">
+              Own Your Data
+              <span className="block bg-[linear-gradient(120deg,#2d4cc9,#3c63f3,#3b82f6)] bg-clip-text text-transparent">
+                Control Your Consent
               </span>
             </h1>
 
-            <p className="mt-5 max-w-2xl text-base text-slate-600 sm:text-lg">
+            <p
+              className="mt-5 max-w-2xl text-base sm:text-lg"
+              style={{ color: "var(--muted)" }}
+            >
               Permisyn gives your app a secure identity and consent workflow
               with wallet-based authentication, role-aware onboarding, and
-              auditable permission controls.
+              audit-ready permission controls.
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
               <HeroConnectButton />
               <a
                 href="#features"
-                className="rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                className="saas-btn-secondary rounded-xl px-6 py-3 text-sm font-semibold transition"
               >
                 Explore Features
               </a>
             </div>
 
-            <p className="mt-3 text-sm text-slate-500">
+            <p className="mt-3 text-sm" style={{ color: "var(--muted)" }}>
               Connect wallet to get started.
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-600">
+            <div
+              className="mt-6 flex flex-wrap gap-4 text-sm"
+              style={{ color: "var(--muted)" }}
+            >
               <p className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                <CheckCircle2
+                  className="h-4 w-4"
+                  style={{ color: "var(--ok)" }}
+                />
                 Fast role onboarding
               </p>
               <p className="inline-flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                <CheckCircle2
+                  className="h-4 w-4"
+                  style={{ color: "var(--ok)" }}
+                />
                 Wallet-first verification
               </p>
             </div>
           </div>
 
-          <div className="grid gap-4" aria-hidden="true" id="features">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Security
+          <div className="saas-card saas-fade-up saas-stagger-1 rounded-3xl p-6">
+            <div className="flex items-center justify-between">
+              <p
+                className="text-xs font-semibold uppercase tracking-[0.12em]"
+                style={{ color: "var(--muted)" }}
+              >
+                Security Posture
               </p>
-              <p className="mt-2 flex items-center gap-2 text-lg font-bold text-slate-900">
-                <LockKeyhole className="h-5 w-5 text-teal-700" />
-                SIWE-Based Authentication
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Users prove wallet ownership before any onboarding or permission
-                action is allowed.
-              </p>
+              <span className="rounded-full bg-blue-50 px-2.5 py-1 text-xs font-semibold text-blue-700">
+                Live
+              </span>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
-                Governance
-              </p>
-              <p className="mt-2 flex items-center gap-2 text-lg font-bold text-slate-900">
-                <ShieldCheck className="h-5 w-5 text-teal-700" />
-                Account & Role Profiles
-              </p>
-              <p className="mt-2 text-sm text-slate-600">
-                Distinct User and Developer paths keep consent ownership and
-                data access responsibilities clear.
-              </p>
+            <p className="mt-4 text-4xl font-extrabold">98.2%</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
+              Verified consent sessions in the last 24 hours
+            </p>
+
+            <div className="mt-6 space-y-3">
+              {[
+                "Role claims synced",
+                "Policy checks passing",
+                "Audit trail active",
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center justify-between rounded-xl border bg-white px-3 py-2"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--text)" }}
+                  >
+                    {item}
+                  </span>
+                  <CheckCircle2
+                    className="h-4 w-4"
+                    style={{ color: "var(--ok)" }}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
