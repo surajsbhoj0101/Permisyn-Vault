@@ -5,6 +5,7 @@ export type JwtPayload = {
   userId: string;
   role: string | null;
   walletAddress: string;
+  username?: string | null;
 };
 
 const DEV_JWT_SECRET = "godxzorin";

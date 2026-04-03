@@ -70,18 +70,21 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-30 border-b bg-white/88 px-4 py-3 backdrop-blur-xl" style={{ borderColor: "var(--border)" }}>
+    <nav
+      className="sticky top-0 z-30 border-b bg-white/88 px-4 py-3 backdrop-blur-xl"
+      style={{ borderColor: "var(--border)" }}
+    >
       <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
         <div className="flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-[linear-gradient(135deg,#2844b8,#3c63f3)] text-sm font-bold text-white">
-            PV
-          </div>
-          <span className="text-sm font-extrabold tracking-[0.06em] sm:text-base" style={{ color: "var(--text)" }}>
-            PERMISYN
+          <span className="text-xl text-blue-600 font-extrabold tracking-wide">
+            PERMISYN VAULT
           </span>
         </div>
 
-        <div className="hidden items-center gap-1 rounded-2xl border bg-white p-1 md:flex" style={{ borderColor: "var(--border)" }}>
+        <div
+          className="hidden items-center gap-1 rounded-2xl border bg-white p-1 md:flex"
+          style={{ borderColor: "var(--border)" }}
+        >
           {navItems.map((item) => (
             <a
               key={item.label}
@@ -129,7 +132,10 @@ function Navbar() {
             ))}
           </div>
 
-          <div className="mt-3 border-t pt-3" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="mt-3 border-t pt-3"
+            style={{ borderColor: "var(--border)" }}
+          >
             <CustomConnectButton />
           </div>
         </div>

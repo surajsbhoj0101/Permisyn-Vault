@@ -5,7 +5,8 @@ import Navbar from "./components/Navbar";
 import AppProviders from "./components/AppProviders.tsx";
 import AuthProvider from "./contexts/AuthContext.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import Dashboard from "./pages/developer_pages/Dashboard.tsx";
+import Overview from "./pages/developer_pages/Overview.tsx";
+import ManageApps from "./pages/developer_pages/ManageApps.tsx";
 
 import "./index.css";
 import App from "./App.tsx";
@@ -46,8 +47,12 @@ const router = createBrowserRouter([
     path: "/developer",
     children: [
       {
-        path: "dashboard",
-        element: <Dashboard />,
+        path: "overview",
+        element: <Overview />,
+      },
+      {
+        path: "manage-apps",
+        element: <ManageApps />,
       },
     ],
   },

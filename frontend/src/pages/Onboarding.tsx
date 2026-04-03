@@ -4,7 +4,12 @@ import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { AuthResponse, SetRoleRequest } from "../../../shared/auth/type";
 import { useAuth } from "../contexts/AuthContext";
-import { ArrowRight, Building2, CircleUserRound, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  Building2,
+  CircleUserRound,
+  ShieldCheck,
+} from "lucide-react";
 import type { Role } from "../../../shared/role/type";
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
@@ -18,7 +23,7 @@ type OnboardingFormState = {
 };
 
 const getRedirectPathByRole = (currentRole: Role | null | undefined) => {
-  if (currentRole === "DEVELOPER") return "/developer/dashboard";
+  if (currentRole === "DEVELOPER") return "/developer/overview";
   return "/";
 };
 
@@ -195,7 +200,8 @@ function Onboarding() {
         `${API_BASE_URL}/api/auth/set-role`,
         {
           username: form.username.trim(),
-          companyName: form.role === "DEVELOPER" ? form.companyName.trim() : null,
+          companyName:
+            form.role === "DEVELOPER" ? form.companyName.trim() : null,
           email: form.email.trim(),
           role: form.role,
         } satisfies SetRoleRequest,
@@ -206,6 +212,7 @@ function Onboarding() {
         response.data.isAuthorized,
         response.data.role,
         response.data.userId,
+        response.data.username,
       );
       navigate(getRedirectPathByRole(response.data.role));
     } catch (caughtError) {
@@ -223,7 +230,13 @@ function Onboarding() {
           <div className="relative mx-auto max-w-4xl">
             <section className="saas-card rounded-3xl p-6 sm:p-8 md:p-10">
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="rounded-full border bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em]" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
+                <p
+                  className="rounded-full border bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em]"
+                  style={{
+                    borderColor: "var(--border)",
+                    color: "var(--muted)",
+                  }}
+                >
                   Account Setup
                 </p>
                 <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
@@ -239,8 +252,12 @@ function Onboarding() {
                 </span>
               </h1>
 
-              <p className="mt-4 max-w-2xl text-sm sm:text-base" style={{ color: "var(--muted)" }}>
-                Complete your profile and verify email with OTP. This keeps role intent explicit and audit-friendly from day one.
+              <p
+                className="mt-4 max-w-2xl text-sm sm:text-base"
+                style={{ color: "var(--muted)" }}
+              >
+                Complete your profile and verify email with OTP. This keeps role
+                intent explicit and audit-friendly from day one.
               </p>
 
               <div className="mt-5 flex items-center gap-2">
@@ -251,7 +268,10 @@ function Onboarding() {
                     }`}
                   />
                 </div>
-                <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--muted)" }}>
+                <span
+                  className="text-xs font-semibold uppercase tracking-widest"
+                  style={{ color: "var(--muted)" }}
+                >
                   Step {step} / 2
                 </span>
               </div>
@@ -261,47 +281,89 @@ function Onboarding() {
                   <div className="mt-7 grid gap-3 sm:grid-cols-2">
                     <button
                       type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, role: "USER" }))}
+                      onClick={() =>
+                        setForm((prev) => ({ ...prev, role: "USER" }))
+                      }
                       className={`rounded-2xl border p-4 text-left transition ${
                         form.role === "USER"
                           ? "border-blue-300 bg-blue-50"
                           : "bg-white"
                       }`}
-                      style={form.role !== "USER" ? { borderColor: "var(--border)" } : undefined}
+                      style={
+                        form.role !== "USER"
+                          ? { borderColor: "var(--border)" }
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-2">
-                        <CircleUserRound className="h-5 w-5" style={{ color: "var(--text)" }} />
+                        <CircleUserRound
+                          className="h-5 w-5"
+                          style={{ color: "var(--text)" }}
+                        />
                         <p className="font-semibold">User</p>
                       </div>
-                      <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>Vault data owner</p>
+                      <p
+                        className="mt-1 text-sm"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        Vault data owner
+                      </p>
                     </button>
 
                     <button
                       type="button"
-                      onClick={() => setForm((prev) => ({ ...prev, role: "DEVELOPER" }))}
+                      onClick={() =>
+                        setForm((prev) => ({ ...prev, role: "DEVELOPER" }))
+                      }
                       className={`rounded-2xl border p-4 text-left transition ${
                         form.role === "DEVELOPER"
                           ? "border-blue-300 bg-blue-50"
                           : "bg-white"
                       }`}
-                      style={form.role !== "DEVELOPER" ? { borderColor: "var(--border)" } : undefined}
+                      style={
+                        form.role !== "DEVELOPER"
+                          ? { borderColor: "var(--border)" }
+                          : undefined
+                      }
                     >
                       <div className="flex items-center gap-2">
-                        <Building2 className="h-5 w-5" style={{ color: "var(--text)" }} />
+                        <Building2
+                          className="h-5 w-5"
+                          style={{ color: "var(--text)" }}
+                        />
                         <p className="font-semibold">Developer</p>
                       </div>
-                      <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>Requests access to data</p>
+                      <p
+                        className="mt-1 text-sm"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        Requests access to data
+                      </p>
                     </button>
                   </div>
 
-                  <div className="mt-6 rounded-2xl border bg-white p-4 sm:p-5" style={{ borderColor: "var(--border)" }}>
+                  <div
+                    className="mt-6 rounded-2xl border bg-white p-4 sm:p-5"
+                    style={{ borderColor: "var(--border)" }}
+                  >
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-1.5 block text-sm font-medium" style={{ color: "var(--text)" }}>
+                        <label
+                          className="mb-1.5 block text-sm font-medium"
+                          style={{ color: "var(--text)" }}
+                        >
                           Username
                         </label>
-                        <div className="flex w-full items-center rounded-xl border bg-white transition focus-within:border-blue-400" style={{ borderColor: "var(--border)" }}>
-                          <span className="pl-3 text-sm font-semibold" style={{ color: "var(--muted)" }}>@</span>
+                        <div
+                          className="flex w-full items-center rounded-xl border bg-white transition focus-within:border-blue-400"
+                          style={{ borderColor: "var(--border)" }}
+                        >
+                          <span
+                            className="pl-3 text-sm font-semibold"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            @
+                          </span>
                           <input
                             value={form.username}
                             onChange={handleUsernameChange}
@@ -313,7 +375,12 @@ function Onboarding() {
                       </div>
 
                       <div>
-                        <label className="mb-1.5 block text-sm font-medium" style={{ color: "var(--text)" }}>Email</label>
+                        <label
+                          className="mb-1.5 block text-sm font-medium"
+                          style={{ color: "var(--text)" }}
+                        >
+                          Email
+                        </label>
                         <input
                           value={form.email}
                           onChange={(e) => {
@@ -326,7 +393,10 @@ function Onboarding() {
                             }
                           }}
                           className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
-                          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                          style={{
+                            borderColor: "var(--border)",
+                            color: "var(--text)",
+                          }}
                           placeholder="Enter email"
                         />
                       </div>
@@ -334,7 +404,10 @@ function Onboarding() {
 
                     {form.role === "DEVELOPER" ? (
                       <div className="mt-4">
-                        <label className="mb-1.5 block text-sm font-medium" style={{ color: "var(--text)" }}>
+                        <label
+                          className="mb-1.5 block text-sm font-medium"
+                          style={{ color: "var(--text)" }}
+                        >
                           Company name
                         </label>
                         <input
@@ -346,23 +419,46 @@ function Onboarding() {
                             }))
                           }
                           className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
-                          style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                          style={{
+                            borderColor: "var(--border)",
+                            color: "var(--text)",
+                          }}
                           placeholder="Enter company name"
                         />
                       </div>
                     ) : null}
 
-                    <p className="mt-4 text-xs" style={{ color: "var(--muted)" }}>
-                      Your username is public. Your email is used for notifications.
+                    <p
+                      className="mt-4 text-xs"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      Your username is public. Your email is used for
+                      notifications.
                     </p>
                   </div>
                 </>
               ) : (
-                <div className="mt-7 rounded-2xl border bg-white p-4 sm:p-5" style={{ borderColor: "var(--border)" }}>
-                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>Verify email with OTP</p>
+                <div
+                  className="mt-7 rounded-2xl border bg-white p-4 sm:p-5"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--text)" }}
+                  >
+                    Verify email with OTP
+                  </p>
                   <p className="mt-1 text-sm" style={{ color: "var(--muted)" }}>
-                    We will verify your account using a one-time password sent to
-                    <span className="font-semibold" style={{ color: "var(--text)" }}> {form.email}</span>.
+                    We will verify your account using a one-time password sent
+                    to
+                    <span
+                      className="font-semibold"
+                      style={{ color: "var(--text)" }}
+                    >
+                      {" "}
+                      {form.email}
+                    </span>
+                    .
                   </p>
 
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -390,9 +486,16 @@ function Onboarding() {
                   <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
                     <input
                       value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      onChange={(e) =>
+                        setOtpCode(
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
+                        )
+                      }
                       className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm tracking-[0.25em] outline-none transition focus:border-blue-400 sm:w-56"
-                      style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                      style={{
+                        borderColor: "var(--border)",
+                        color: "var(--text)",
+                      }}
                       placeholder="000000"
                       inputMode="numeric"
                     />
@@ -411,7 +514,8 @@ function Onboarding() {
                   </div>
 
                   <p className="mt-3 text-xs" style={{ color: "var(--muted)" }}>
-                    Use the 6-digit code from your email inbox. OTP expires in 5 minutes.
+                    Use the 6-digit code from your email inbox. OTP expires in 5
+                    minutes.
                   </p>
                 </div>
               )}
@@ -428,7 +532,10 @@ function Onboarding() {
                 </p>
               ) : null}
 
-              <div className="mt-6 flex flex-wrap gap-4" style={{ color: "var(--muted)" }}>
+              <div
+                className="mt-6 flex flex-wrap gap-4"
+                style={{ color: "var(--muted)" }}
+              >
                 <p className="inline-flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-emerald-600" />
                   Fast role onboarding
@@ -459,7 +566,9 @@ function Onboarding() {
                       type="button"
                       onClick={() => {
                         if (!canGoToOtpStep) {
-                          setError("Complete profile details before continuing");
+                          setError(
+                            "Complete profile details before continuing",
+                          );
                           return;
                         }
                         setError(null);
@@ -489,7 +598,9 @@ function Onboarding() {
       ) : (
         <main className="mx-auto max-w-3xl px-4 py-10 md:py-14">
           <div className="saas-card rounded-3xl p-6 sm:p-8">
-            <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>Connect wallet first</h1>
+            <h1 className="text-2xl font-bold" style={{ color: "var(--text)" }}>
+              Connect wallet first
+            </h1>
             <p className="mt-2 text-sm" style={{ color: "var(--muted)" }}>
               You need a valid wallet session before onboarding.
             </p>

@@ -44,7 +44,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
   const redirectByRole = (role: Role) => {
     console.log("User role:", role);
     if (role === "DEVELOPER") {
-      navigate("/developer/dashboard");
+      navigate("/developer/overview");
       return;
     }
     navigate("/");
@@ -68,7 +68,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
         { withCredentials: true },
       );
 
-      const { isAuthorized, role, userId } = jwtRes.data;
+      const { isAuthorized, role, userId, username } = jwtRes.data;
 
       if (!isAuthorized) {
         await handleSiwe();
@@ -76,7 +76,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
       }
 
       if (role === "GUEST") {
-        setAuthState(isAuthorized, "GUEST", userId);
+        setAuthState(isAuthorized, "GUEST", userId, username);
         pushNotice("Please complete onboarding");
         navigate("/onboarding");
         return;
@@ -86,7 +86,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
         throw new Error("User role is missing");
       }
 
-      setAuthState(isAuthorized, role, userId);
+      setAuthState(isAuthorized, role, userId, username);
       pushNotice("Login successful");
 
       redirectByRole(role);

@@ -1,9 +1,8 @@
 import type { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import redis from "../config/redis";
-import { prisma } from "../config/db";
+import { prisma, Prisma } from "../config/db";
 import { generateNonce, SiweMessage } from "siwe";
-import { Prisma, Role } from "@prisma/client";
 import { sendMail } from "../services/sendMail";
 import { requestOtpRateLimit } from "../middlewares/otpRequest.middleware";
 import {
@@ -11,6 +10,9 @@ import {
   readAuthToken,
   type JwtPayload,
 } from "../middlewares/requireAuth";
+
+// Role constants
+const ROLE_VALUES = ["USER", "DEVELOPER", "GUEST"] as const;
 
 const signToken = (payload: JwtPayload) => {
   return jwt.sign(payload, getJwtSecret(), { expiresIn: "7d" });
@@ -33,7 +35,7 @@ const clearAuthCookie = (res: Response) => {
   });
 };
 
-export const checkAuth = (req: Request, res: Response) => {
+export const checkAuth = async (req: Request, res: Response) => {
   const decoded = readAuthToken(req);
 
   if (!decoded) {
@@ -41,14 +43,25 @@ export const checkAuth = (req: Request, res: Response) => {
       isAuthorized: false,
       role: null,
       userId: null,
+      username: null,
     });
   }
 
-  return res.status(200).json({
-    isAuthorized: true,
-    role: decoded.role,
-    userId: decoded.userId,
-  });
+  try {
+    const account = await prisma.account.findUnique({
+      where: { id: decoded.userId },
+    });
+
+    return res.status(200).json({
+      isAuthorized: true,
+      role: decoded.role,
+      userId: decoded.userId,
+      username: account?.username || null,
+    });
+  } catch (error) {
+    console.error("checkAuth error:", error);
+    return res.status(500).json({ error: "Failed to check auth status" });
+  }
 };
 
 export const logout = (_req: Request, res: Response) => {
@@ -105,7 +118,7 @@ export const verifySiwe = async (req: Request, res: Response) => {
       update: {},
       create: {
         walletAddress,
-        role: Role.GUEST,
+        role: "GUEST",
       },
     });
 
@@ -129,6 +142,7 @@ export const verifySiwe = async (req: Request, res: Response) => {
       isAuthorized: true,
       userId: account.id,
       role: account.role,
+      username: null,
     });
   } catch (error) {
     console.error("verifySiwe error:", error);
@@ -168,21 +182,20 @@ export const checkEmailTaken = async (req: Request, res: Response) => {
     return res.status(400).json({ error: "Email is required" });
   }
 
+  let existingEmail: string | null;
   try {
-    const existingAccount = await prisma.account.findUnique({
-      where: { email: normalizedEmail },
-    });
-
-    if (existingAccount) {
-      return res.status(200).json({ isTaken: true });
-    } else {
-      return res.status(200).json({ isTaken: false });
-    }
+    existingEmail = await redis.get(`email:${normalizedEmail}`);
   } catch (error) {
-    console.error("checkEmailTaken error:", error);
+    console.error("Redis error in checkEmailTaken:", error);
     return res
       .status(500)
       .json({ error: "Failed to check email availability" });
+  }
+
+  if (existingEmail) {
+    return res.status(200).json({ isTaken: true });
+  } else {
+    return res.status(200).json({ isTaken: false });
   }
 };
 
@@ -274,7 +287,7 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       .json({ error: "username, role and email are required" });
   }
 
-  if (!Object.values(Role).includes(role as Role)) {
+  if (!ROLE_VALUES.includes(role as typeof ROLE_VALUES[number])) {
     return res.status(400).json({ error: "Invalid role" });
   }
 
@@ -292,7 +305,7 @@ export const setRoleSelection = async (req: Request, res: Response) => {
     }
 
     // Hard check: only GUEST role can onboard
-    if (account.role !== Role.GUEST) {
+    if (account.role !== "GUEST") {
       return res
         .status(403)
         .json({ error: "Only guests can complete onboarding" });
@@ -303,7 +316,20 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "OTP verification required" });
     }
 
-    if (role === Role.USER) {
+    // Check if username already exists in Redis
+    const existingUsername = await redis.get(`username:${normalizedUsername}`);
+    if (existingUsername) {
+      return res.status(409).json({ error: "Username already exists" });
+    }
+
+    // Check if email already exists in Redis
+    const existingEmail = await redis.get(`email:${normalizedEmail}`);
+    if (existingEmail) {
+      return res.status(409).json({ error: "Email already exists" });
+    }
+
+    // Upsert User or Developer role indicator (without username)
+    if (role === "USER") {
       if (account.developer) {
         await prisma.developer.delete({
           where: { accountId: account.id },
@@ -312,15 +338,14 @@ export const setRoleSelection = async (req: Request, res: Response) => {
 
       await prisma.user.upsert({
         where: { accountId: account.id },
-        update: { username: normalizedUsername },
+        update: {},
         create: {
           accountId: account.id,
-          username: normalizedUsername,
         },
       });
     }
 
-    if (role === Role.DEVELOPER) {
+    if (role === "DEVELOPER") {
       if (account.user) {
         await prisma.user.delete({
           where: { accountId: account.id },
@@ -330,12 +355,10 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       await prisma.developer.upsert({
         where: { accountId: account.id },
         update: {
-          username: normalizedUsername,
           companyName: companyName?.trim() || null,
         },
         create: {
           accountId: account.id,
-          username: normalizedUsername,
           companyName: companyName?.trim() || null,
         },
       });
@@ -344,24 +367,30 @@ export const setRoleSelection = async (req: Request, res: Response) => {
     const updatedAccount = await prisma.account.update({
       where: { id: account.id },
       data: {
-        role: role as Role,
+        role: role as typeof ROLE_VALUES[number],
+        username: normalizedUsername,
         email: normalizedEmail,
       },
     });
+
+    // Store in Redis for fast lookups
+    await redis.set(`username:${normalizedUsername}`, updatedAccount.id);
+    await redis.set(`email:${normalizedEmail}`, updatedAccount.id);
+    await redis.del(`otp-verified:${decoded.userId}`);
 
     const token = signToken({
       userId: updatedAccount.id,
       role: updatedAccount.role,
       walletAddress: updatedAccount.walletAddress,
+      username: normalizedUsername,
     });
     setAuthCookie(res, token);
-    await redis.set(`username:${normalizedUsername}`, "1");
-    await redis.del(`otp-verified:${decoded.userId}`);
 
     return res.status(200).json({
       isAuthorized: true,
       role: updatedAccount.role,
       userId: updatedAccount.id,
+      username: normalizedUsername,
     });
   } catch (error) {
     if (
