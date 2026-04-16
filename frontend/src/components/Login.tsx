@@ -47,7 +47,7 @@ const Login = ({ setLoadingUser, setNotice, setRedNotice }: LoginProps) => {
       navigate("/developer/overview");
       return;
     }
-    navigate("/");
+    navigate("/user/overview");
   };
 
   async function getSigner() {

@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import gsap from "gsap";
 import { Menu, X, Zap, Wallet } from "lucide-react";
 import { Logout } from "./Logout";
+import logo from "../assets/images/permisyn-logo.svg";
 
 const navItems = [
   { label: "Features", href: "#features" },
@@ -29,7 +31,7 @@ function CustomConnectButton() {
             {!connected ? (
               <button
                 onClick={openConnectModal}
-                className="saas-btn-primary w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition md:w-auto"
+                className="saas-btn-primary saas-btn-future w-full rounded-xl px-4 py-2.5 text-sm font-semibold transition md:w-auto"
               >
                 Connect Wallet
               </button>
@@ -68,28 +70,93 @@ function CustomConnectButton() {
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navRef = useRef<HTMLElement | null>(null);
+
+  useLayoutEffect(() => {
+    if (!navRef.current) {
+      return;
+    }
+
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (reduceMotion) {
+      window.dispatchEvent(new Event("navbar:intro:done"));
+      return;
+    }
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        defaults: { ease: "power3.out" },
+        onComplete: () => {
+          window.dispatchEvent(new Event("navbar:intro:done"));
+        },
+      });
+
+      tl.fromTo(
+        "[data-nav-shell]",
+        { y: -28, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.45, clearProps: "opacity,transform" },
+      )
+        .fromTo(
+          "[data-nav-logo]",
+          { x: -18, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.35, clearProps: "opacity,transform" },
+          "-=0.2",
+        )
+        .fromTo(
+          "[data-nav-link]",
+          { y: -10, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.3,
+            stagger: 0.06,
+            clearProps: "opacity,transform",
+          },
+          "-=0.18",
+        )
+        .fromTo(
+          "[data-nav-connect]",
+          { x: 18, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.34, clearProps: "opacity,transform" },
+          "-=0.24",
+        );
+    }, navRef);
+
+    return () => {
+      ctx.revert();
+    };
+  }, []);
 
   return (
     <nav
-      className="sticky top-0 z-30 border-b bg-white/88 px-4 py-3 backdrop-blur-xl"
+      ref={navRef}
+      data-nav-shell
+      className="sticky top-0 z-30 border-b bg-transparent px-4 py-3"
       style={{ borderColor: "var(--border)" }}
     >
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xl text-blue-600 font-extrabold tracking-wide">
-            PERMISYN VAULT
-          </span>
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between ">
+        <div className="flex items-center gap-3">
+          <div data-nav-logo className="neo-surface relative  ">
+            <img
+              src={logo}
+              alt="Permisyn Vault logo"
+              className="h-10 w-full object-contain"
+            />
+          </div>
         </div>
 
         <div
-          className="hidden items-center gap-1 rounded-2xl border bg-white p-1 md:flex"
+          className="neo-surface hidden items-center gap-1 p-1 md:flex"
           style={{ borderColor: "var(--border)" }}
         >
           {navItems.map((item) => (
             <a
               key={item.label}
+              data-nav-link
               href={item.href}
-              className="rounded-xl px-3 py-2 text-sm font-semibold transition"
+              className="rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-[rgba(115,186,255,0.16)]"
               style={{ color: "var(--muted)" }}
             >
               {item.label}
@@ -97,14 +164,14 @@ function Navbar() {
           ))}
         </div>
 
-        <div className="hidden md:block">
+        <div data-nav-connect className="hidden md:block">
           <CustomConnectButton />
         </div>
 
         <button
           type="button"
           onClick={() => setIsMenuOpen((prev) => !prev)}
-          className="rounded-xl border bg-white p-2 md:hidden"
+          className="neo-surface p-2 md:hidden"
           style={{ borderColor: "var(--border)", color: "var(--text)" }}
           aria-label="Toggle navigation menu"
         >
@@ -123,7 +190,7 @@ function Navbar() {
               <a
                 key={item.label}
                 href={item.href}
-                className="rounded-xl px-3 py-2 text-sm font-semibold transition"
+                className="rounded-xl px-3 py-2 text-sm font-semibold transition hover:bg-[rgba(134,173,246,0.15)]"
                 style={{ color: "var(--text)" }}
                 onClick={() => setIsMenuOpen(false)}
               >

@@ -287,7 +287,7 @@ export const setRoleSelection = async (req: Request, res: Response) => {
       .json({ error: "username, role and email are required" });
   }
 
-  if (!ROLE_VALUES.includes(role as typeof ROLE_VALUES[number])) {
+  if (!ROLE_VALUES.includes(role as (typeof ROLE_VALUES)[number])) {
     return res.status(400).json({ error: "Invalid role" });
   }
 
@@ -367,7 +367,7 @@ export const setRoleSelection = async (req: Request, res: Response) => {
     const updatedAccount = await prisma.account.update({
       where: { id: account.id },
       data: {
-        role: role as typeof ROLE_VALUES[number],
+        role: role as (typeof ROLE_VALUES)[number],
         username: normalizedUsername,
         email: normalizedEmail,
       },

@@ -1,0 +1,33 @@
+<svg width="520" height="140" viewBox="0 0 520 140" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Permisyn Logo</title>
+  <desc id="desc">Permisyn wordmark with secure data shield emblem.</desc>
+  <defs>
+    <linearGradient id="shieldGradient" x1="18" y1="12" x2="116" y2="122" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#70C7FF"/>
+      <stop offset="0.55" stop-color="#3E8DFF"/>
+      <stop offset="1" stop-color="#6E6BFF"/>
+    </linearGradient>
+    <linearGradient id="wordGradient" x1="146" y1="28" x2="505" y2="110" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3FAFF"/>
+      <stop offset="0.45" stop-color="#A8D7FF"/>
+      <stop offset="1" stop-color="#FFC99C"/>
+    </linearGradient>
+    <filter id="outerGlow" x="0" y="0" width="138" height="138" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.30 0 0 0 0 0.58 0 0 0 0 1.00 0 0 0 0.55 0"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(10 10)">
+    <g filter="url(#outerGlow)">
+      <path d="M62 8L106 24V58C106 83.4 88.9 106.5 62 114C35.1 106.5 18 83.4 18 58V24L62 8Z" fill="url(#shieldGradient)"/>
+    </g>
+    <path d="M62 8L106 24V58C106 83.4 88.9 106.5 62 114C35.1 106.5 18 83.4 18 58V24L62 8Z" fill="url(#shieldGradient)"/>
+    <path d="M62 22L93 33V58C93 76.3 80.8 92.3 62 98.4C43.2 92.3 31 76.3 31 58V33L62 22Z" fill="rgba(8, 19, 54, 0.34)"/>
+    <path d="M47 74V34H66.5C76 34 82.5 39.7 82.5 48.1C82.5 56.6 76 62.3 66.5 62.3H57V74H47ZM57 53.7H65.6C69.5 53.7 72.1 51.6 72.1 48.1C72.1 44.7 69.5 42.6 65.6 42.6H57V53.7Z" fill="#EAF6FF"/>
+    <circle cx="89" cy="93" r="6.5" fill="#8EF2D5"/>
+  </g>
+
+  <text x="146" y="66" fill="url(#wordGradient)" font-family="Space Grotesk, Sora, Arial, sans-serif" font-size="50" font-weight="700" letter-spacing="0.8">PERMISYN</text>
+  <text x="270" y="122" text-anchor="middle" fill="#9BB0D8" font-family="Sora, Arial, sans-serif" font-size="50" font-weight="600" letter-spacing="0.8">VAULT</text>
+</svg>

@@ -4,23 +4,23 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {
   Home,
   Shield,
-  Lock,
+  Clock3,
   BarChart3,
   Settings,
   ChevronDown,
 } from "lucide-react";
+import PermisynLogo from "./PermisynLogo";
 import { Logout } from "./Logout";
 
 const developerMenu = [
   { label: "Overview", icon: Home, path: "/developer/overview" },
   { label: "Manage Apps", icon: Shield, path: "/developer/manage-apps" },
-  { label: "Sessions", icon: Lock, path: "/developer/sessions" },
   { label: "Access Logs", icon: BarChart3, path: "/developer/access-logs" },
-  { label: "Settings", icon: Settings, path: "/developer/settings" },
 ];
 
 const userMenu = [
-  { label: "My Sessions", icon: Lock, path: "/user/sessions" },
+  { label: "Overview", icon: Home, path: "/user/overview" },
+  { label: "Sessions", icon: Clock3, path: "/user/sessions" },
   { label: "Access Logs", icon: BarChart3, path: "/user/access-logs" },
   { label: "Settings", icon: Settings, path: "/user/settings" },
 ];
@@ -43,40 +43,54 @@ function Sidebar() {
 
   return (
     <aside
-      className="sticky top-0 h-screen overflow-y-auto border-r bg-linear-to-b from-white via-white to-slate-50 px-4 py-6"
+      className="saas-scrollbar sticky top-0 h-screen overflow-y-auto border-r bg-[rgba(8,16,39,0.42)] px-4 py-6 backdrop-blur-xl"
       style={{ borderColor: "var(--border)" }}
     >
       <div
         className="mb-8 space-y-2 border-b pb-6"
         style={{ borderColor: "var(--border)" }}
       >
-        <div className="px-2">
-          <h2 className="text-sm font-extrabold uppercase tracking-[0.08em] text-slate-700">
-            Permisyn Vault
-          </h2>
-          <p
-            className="text-xs uppercase tracking-[0.08em]"
-            style={{ color: "var(--muted)" }}
-          >
-            Developer Workspace
-          </p>
+        <div className="flex items-center gap-3 px-2">
+          <PermisynLogo />
+          <div>
+            <h2
+              className="text-sm font-extrabold uppercase tracking-[0.08em]"
+              style={{ color: "var(--text)" }}
+            >
+              Permisyn Vault
+            </h2>
+            <p
+              className="text-xs uppercase tracking-[0.08em]"
+              style={{ color: "var(--muted)" }}
+            >
+              {role === "DEVELOPER" ? "Developer Workspace" : "User Workspace"}
+            </p>
+          </div>
         </div>
       </div>
 
       <nav className="space-y-2 pb-32">
+        <p
+          className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-[0.14em]"
+          style={{ color: "var(--muted)" }}
+        >
+          Navigation
+        </p>
         {navItems.map((item, idx) => (
           <button
             key={item.label}
             onClick={() => navigate(item.path)}
-            className={`group flex hover:cursor-pointer w-full items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-left text-base font-semibold transition-all duration-200 hover:bg-blue-50 hover:shadow-md hover:scale-105 active:scale-95 border-l-4 ${
+            className={`group flex w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition hover:cursor-pointer ${
               activeIndex === idx
-                ? "bg-blue-100 text-blue-600 border-blue-600"
-                : "border-transparent"
+                ? "border-[rgba(163,201,255,0.56)] bg-[linear-gradient(145deg,rgba(219,236,255,0.24),rgba(171,209,255,0.2))] text-(--text) shadow-[inset_0_1px_0_rgba(255,255,255,0.28),0_12px_24px_rgba(7,17,38,0.28)]"
+                : "border-[rgba(141,174,238,0.24)] bg-[linear-gradient(145deg,rgba(221,235,255,0.09),rgba(177,210,255,0.08))] shadow-[0_10px_20px_rgba(4,12,30,0.2)] hover:border-[rgba(173,205,255,0.46)]"
             }`}
             style={activeIndex === idx ? {} : { color: "var(--text)" }}
           >
             <span className="flex items-center gap-3">
-              <item.icon className="h-5 w-5 transition-all duration-200 group-hover:scale-110 group-hover:text-blue-600" />
+              <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg neo-inset">
+                <item.icon className="h-4 w-4" />
+              </span>
               {item.label}
             </span>
           </button>
@@ -84,13 +98,13 @@ function Sidebar() {
       </nav>
 
       <div
-        className="fixed bottom-0 left-0 w-[20%] border-t bg-white p-4"
+        className="sticky bottom-0 border-t bg-[rgba(7,17,40,0.36)] p-2 backdrop-blur-lg"
         style={{ borderColor: "var(--border)" }}
       >
         <button
           type="button"
           onClick={() => setExpandedProfile((prev) => !prev)}
-          className="saas-card w-full rounded-2xl p-4 transition-all duration-200 hover:shadow-lg hover:bg-blue-50"
+          className="saas-card w-full rounded-2xl p-4"
           style={{ borderColor: "var(--border)" }}
         >
           <div className="flex items-center justify-between gap-3">

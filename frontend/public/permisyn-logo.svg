@@ -1,0 +1,28 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="64" y1="48" x2="448" y2="464" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1F4FD1"/>
+      <stop offset="0.52" stop-color="#4F8CFF"/>
+      <stop offset="1" stop-color="#56D7FF"/>
+    </linearGradient>
+    <linearGradient id="strokeGradient" x1="153" y1="130" x2="364" y2="364" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E6F3FF"/>
+      <stop offset="1" stop-color="#A9D5FF"/>
+    </linearGradient>
+    <filter id="glow" x="48" y="32" width="416" height="448" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur"/>
+    </filter>
+  </defs>
+
+  <rect x="64" y="64" width="384" height="384" rx="108" fill="url(#bgGradient)"/>
+  <rect x="78" y="78" width="356" height="356" rx="96" stroke="rgba(230,243,255,0.45)" stroke-width="6"/>
+
+  <g filter="url(#glow)">
+    <path d="M256 122L355 168V246C355 307 320 361 256 392C192 361 157 307 157 246V168L256 122Z" stroke="url(#strokeGradient)" stroke-width="16" stroke-linejoin="round"/>
+    <path d="M221 214H272C293 214 310 231 310 252C310 273 293 290 272 290H221V214Z" stroke="#F3FAFF" stroke-width="16" stroke-linejoin="round"/>
+    <path d="M221 290V334" stroke="#F3FAFF" stroke-width="16" stroke-linecap="round"/>
+    <path d="M205 334H248" stroke="#F3FAFF" stroke-width="16" stroke-linecap="round"/>
+  </g>
+</svg>

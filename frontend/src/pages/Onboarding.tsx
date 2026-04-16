@@ -24,7 +24,7 @@ type OnboardingFormState = {
 
 const getRedirectPathByRole = (currentRole: Role | null | undefined) => {
   if (currentRole === "DEVELOPER") return "/developer/overview";
-  return "/";
+  return "/user/overview";
 };
 
 function Onboarding() {
@@ -33,7 +33,11 @@ function Onboarding() {
 
   useEffect(() => {
     if (isAuthorized && role !== "GUEST") {
-      navigate("/");
+      const normalizedRole =
+        role === "DEVELOPER" || role === "USER" || role === "GUEST"
+          ? role
+          : null;
+      navigate(getRedirectPathByRole(normalizedRole));
     }
   }, [isAuthorized, role, navigate]);
 
@@ -156,7 +160,8 @@ function Onboarding() {
         { withCredentials: true },
       );
       setOtpVerified(true);
-      setOtpNotice("OTP verified successfully");
+      setOtpNotice("OTP verified successfully. Completing onboarding...");
+      await submitOnboarding();
     } catch (caughtError) {
       const apiError = caughtError as AxiosError<{ error?: string }>;
       setError(apiError.response?.data?.error || "Failed to verify OTP");
@@ -231,24 +236,25 @@ function Onboarding() {
             <section className="saas-card rounded-3xl p-6 sm:p-8 md:p-10">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p
-                  className="rounded-full border bg-white px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em]"
-                  style={{
-                    borderColor: "var(--border)",
-                    color: "var(--muted)",
-                  }}
+                  className="neo-pill px-4 py-1 text-xs font-semibold uppercase tracking-[0.14em]"
+                  style={{ color: "var(--muted)" }}
                 >
                   Account Setup
                 </p>
-                <p className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                <p
+                  className="neo-pill inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold"
+                  style={{ color: "var(--brand)" }}
+                >
+                  <span className="neo-dot" />
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Secure wallet session
                 </p>
               </div>
 
               <h1 className="mt-5 text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-                Set up your workspace,
-                <span className="block bg-[linear-gradient(120deg,#2d4cc9,#3c63f3,#3b82f6)] bg-clip-text text-transparent">
-                  then unlock the dashboard.
+                Configure your workspace,
+                <span className="block bg-[linear-gradient(120deg,#11357f,#1f4eb3,#2f5ec4)] bg-clip-text text-transparent">
+                  then unlock operations.
                 </span>
               </h1>
 
@@ -256,14 +262,14 @@ function Onboarding() {
                 className="mt-4 max-w-2xl text-sm sm:text-base"
                 style={{ color: "var(--muted)" }}
               >
-                Complete your profile and verify email with OTP. This keeps role
-                intent explicit and audit-friendly from day one.
+                Complete profile details and verify email with OTP. This keeps
+                role intent explicit and audit-friendly from day one.
               </p>
 
               <div className="mt-5 flex items-center gap-2">
-                <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+                <div className="h-2 flex-1 overflow-hidden rounded-full bg-[rgba(126,163,232,0.22)]">
                   <div
-                    className={`h-full rounded-full bg-[linear-gradient(120deg,#2d4cc9,#3c63f3)] transition-all duration-500 ${
+                    className={`h-full rounded-full bg-[linear-gradient(120deg,#5f95f4,#80b2ff)] transition-all duration-500 ${
                       step === 1 ? "w-1/2" : "w-full"
                     }`}
                   />
@@ -286,8 +292,8 @@ function Onboarding() {
                       }
                       className={`rounded-2xl border p-4 text-left transition ${
                         form.role === "USER"
-                          ? "border-blue-300 bg-blue-50"
-                          : "bg-white"
+                          ? "border-[rgba(178,205,255,0.42)] bg-(--brand-soft)"
+                          : "neo-surface"
                       }`}
                       style={
                         form.role !== "USER"
@@ -317,8 +323,8 @@ function Onboarding() {
                       }
                       className={`rounded-2xl border p-4 text-left transition ${
                         form.role === "DEVELOPER"
-                          ? "border-blue-300 bg-blue-50"
-                          : "bg-white"
+                          ? "border-[rgba(178,205,255,0.42)] bg-(--brand-soft)"
+                          : "neo-surface"
                       }`}
                       style={
                         form.role !== "DEVELOPER"
@@ -342,10 +348,7 @@ function Onboarding() {
                     </button>
                   </div>
 
-                  <div
-                    className="mt-6 rounded-2xl border bg-white p-4 sm:p-5"
-                    style={{ borderColor: "var(--border)" }}
-                  >
+                  <div className="neo-surface mt-6 p-4 sm:p-5">
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label
@@ -354,10 +357,7 @@ function Onboarding() {
                         >
                           Username
                         </label>
-                        <div
-                          className="flex w-full items-center rounded-xl border bg-white transition focus-within:border-blue-400"
-                          style={{ borderColor: "var(--border)" }}
-                        >
+                        <div className="neo-inset flex w-full items-center transition focus-within:border-[rgba(174,203,255,0.6)]">
                           <span
                             className="pl-3 text-sm font-semibold"
                             style={{ color: "var(--muted)" }}
@@ -392,11 +392,7 @@ function Onboarding() {
                               checkEmailAvailability(e.target.value);
                             }
                           }}
-                          className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
-                          style={{
-                            borderColor: "var(--border)",
-                            color: "var(--text)",
-                          }}
+                          className="saas-input"
                           placeholder="Enter email"
                         />
                       </div>
@@ -418,11 +414,7 @@ function Onboarding() {
                               companyName: e.target.value,
                             }))
                           }
-                          className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm outline-none transition focus:border-blue-400"
-                          style={{
-                            borderColor: "var(--border)",
-                            color: "var(--text)",
-                          }}
+                          className="saas-input"
                           placeholder="Enter company name"
                         />
                       </div>
@@ -438,10 +430,7 @@ function Onboarding() {
                   </div>
                 </>
               ) : (
-                <div
-                  className="mt-7 rounded-2xl border bg-white p-4 sm:p-5"
-                  style={{ borderColor: "var(--border)" }}
-                >
+                <div className="neo-surface mt-7 p-4 sm:p-5">
                   <p
                     className="text-sm font-semibold"
                     style={{ color: "var(--text)" }}
@@ -477,7 +466,11 @@ function Onboarding() {
                             : "Request OTP"}
                     </button>
                     {otpVerified ? (
-                      <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                      <span
+                        className="neo-pill inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold"
+                        style={{ color: "var(--brand)" }}
+                      >
+                        <span className="neo-dot" />
                         OTP Verified
                       </span>
                     ) : null}
@@ -491,11 +484,7 @@ function Onboarding() {
                           e.target.value.replace(/\D/g, "").slice(0, 6),
                         )
                       }
-                      className="w-full rounded-xl border bg-white px-3 py-2.5 text-sm tracking-[0.25em] outline-none transition focus:border-blue-400 sm:w-56"
-                      style={{
-                        borderColor: "var(--border)",
-                        color: "var(--text)",
-                      }}
+                      className="saas-input w-full tracking-[0.25em] sm:w-56"
                       placeholder="000000"
                       inputMode="numeric"
                     />
@@ -521,13 +510,27 @@ function Onboarding() {
               )}
 
               {error ? (
-                <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                <p
+                  className="mt-4 rounded-xl border px-3 py-2 text-sm"
+                  style={{
+                    borderColor: "rgba(255,150,170,0.4)",
+                    background: "var(--danger-soft)",
+                    color: "#ffd9e2",
+                  }}
+                >
                   {error}
                 </p>
               ) : null}
 
               {otpNotice ? (
-                <p className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+                <p
+                  className="mt-4 rounded-xl border px-3 py-2 text-sm"
+                  style={{
+                    borderColor: "var(--border)",
+                    background: "var(--brand-soft)",
+                    color: "var(--text)",
+                  }}
+                >
                   {otpNotice}
                 </p>
               ) : null}
@@ -537,11 +540,17 @@ function Onboarding() {
                 style={{ color: "var(--muted)" }}
               >
                 <p className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <ShieldCheck
+                    className="h-4 w-4"
+                    style={{ color: "var(--brand)" }}
+                  />
                   Fast role onboarding
                 </p>
                 <p className="inline-flex items-center gap-2">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                  <ShieldCheck
+                    className="h-4 w-4"
+                    style={{ color: "var(--brand)" }}
+                  />
                   Wallet-first verification
                 </p>
               </div>
