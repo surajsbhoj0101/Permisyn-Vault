@@ -1,9 +1,19 @@
+import type { Role } from "../role/type";
+
 export type AuthResponse = {
     isAuthorized: boolean;
-    role: string | null;
+    role: Role | null;
     userId: string | null;
-}
+    username: string | null;
+};
 
-export type nonceResponse = {
+export type NonceResponse = {
     nonce: string;
-}
+};
+
+export type SetRoleRequest = {
+    username: string;
+    companyName?: string | null;
+    email?: string;
+    role: Role;
+};
