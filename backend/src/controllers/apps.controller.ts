@@ -496,11 +496,9 @@ export const createColumn = async (req: Request, res: Response) => {
       });
 
       if (existingPrimaryKey) {
-        return res
-          .status(409)
-          .json({
-            error: "A primary key column already exists for this table",
-          });
+        return res.status(409).json({
+          error: "A primary key column already exists for this table",
+        });
       }
     }
 
