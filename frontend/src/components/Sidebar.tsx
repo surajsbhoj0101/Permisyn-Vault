@@ -8,6 +8,7 @@ import {
   BarChart3,
   Settings,
   ChevronDown,
+  Database,
 } from "lucide-react";
 import PermisynLogo from "./PermisynLogo";
 import { Logout } from "./Logout";
@@ -20,6 +21,7 @@ const developerMenu = [
 
 const userMenu = [
   { label: "Overview", icon: Home, path: "/user/overview" },
+  { label: "Add Record", icon: Database, path: "/user/add-record" },
   { label: "Sessions", icon: Clock3, path: "/user/sessions" },
   { label: "Access Logs", icon: BarChart3, path: "/user/access-logs" },
   { label: "Settings", icon: Settings, path: "/user/settings" },

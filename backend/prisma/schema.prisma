@@ -45,52 +45,52 @@ enum ConsentAction {
 }
 
 model Account {
-    id            String   @id @default(cuid())
-    walletAddress String   @unique
-    role          Role?
-    username      String?  @unique
-    email         String?  @unique
-    user          User?
-    developer     Developer?
+    id               String            @id @default(cuid())
+    walletAddress    String            @unique
+    role             Role?
+    username         String?           @unique
+    email            String?           @unique
+    user             User?
+    developer        Developer?
     consentAuditLogs ConsentAuditLog[]
-    createdAt     DateTime @default(now())
-    updatedAt     DateTime @updatedAt
+    createdAt        DateTime          @default(now())
+    updatedAt        DateTime          @updatedAt
 }
 
 model User {
-    accountId String   @id
-    account   Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-    vaultRecords VaultRecord[]
+    accountId       String           @id
+    account         Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    vaultRecords    VaultRecord[]
     consentRequests ConsentRequest[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
 }
 
 model Developer {
-    accountId   String   @id
-    companyName String?
-    account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-    applications Application[]
+    accountId       String           @id
+    companyName     String?
+    account         Account          @relation(fields: [accountId], references: [id], onDelete: Cascade)
+    applications    Application[]
     consentRequests ConsentRequest[]
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
 }
 
 model Application {
-    id          String              @id @default(cuid())
-    name        String
-    description String?
-    status      AppStatus           @default(ACTIVE)
-    developerId String
-    developer   Developer           @relation(fields: [developerId], references: [accountId], onDelete: Cascade)
-    apiKeys     ApplicationApiKey[]
-    tables      AppTable[]
+    id              String              @id @default(cuid())
+    name            String
+    description     String?
+    status          AppStatus           @default(ACTIVE)
+    developerId     String
+    developer       Developer           @relation(fields: [developerId], references: [accountId], onDelete: Cascade)
+    apiKeys         ApplicationApiKey[]
+    tables          AppTable[]
     consentRequests ConsentRequest[]
-    createdAt   DateTime            @default(now())
-    updatedAt   DateTime            @updatedAt
+    createdAt       DateTime            @default(now())
+    updatedAt       DateTime            @updatedAt
 
-    @@index([developerId])
     @@unique([developerId, name])
+    @@index([developerId])
 }
 
 model ApplicationApiKey {
@@ -108,45 +108,45 @@ model ApplicationApiKey {
 }
 
 model AppTable {
-    id            String       @id @default(cuid())
-    name          String
-    slug          String
-    description   String?
-    status        AppTableStatus @default(ACTIVE)
-    applicationId String
-    application   Application  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
-    columns       AppTableColumn[]
-    rows          AppTableRow[]
+    id              String           @id @default(cuid())
+    name            String
+    slug            String
+    description     String?
+    status          AppTableStatus   @default(ACTIVE)
+    applicationId   String
+    application     Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+    columns         AppTableColumn[]
+    rows            AppTableRow[]
     consentRequests ConsentRequest[]
-    createdAt     DateTime     @default(now())
-    updatedAt     DateTime     @updatedAt
+    createdAt       DateTime         @default(now())
+    updatedAt       DateTime         @updatedAt
 
-    @@index([applicationId])
     @@unique([applicationId, slug])
+    @@index([applicationId])
 }
 
 model AppTableColumn {
-    id           String        @id @default(cuid())
-    name         String
-    key          String
-    type         AppColumnType
-    isRequired   Boolean       @default(false)
-    isUnique     Boolean       @default(false)
-    isPrimaryKey Boolean       @default(false)
-    isForeignKey Boolean       @default(false)
-    referencesTableId String?
+    id                 String        @id @default(cuid())
+    name               String
+    key                String
+    type               AppColumnType
+    isRequired         Boolean       @default(false)
+    isUnique           Boolean       @default(false)
+    isPrimaryKey       Boolean       @default(false)
+    isForeignKey       Boolean       @default(false)
+    referencesTableId  String?
     referencesColumnId String?
-    defaultValue Json?
-    position     Int           @default(0)
-    tableId      String
-    table        AppTable      @relation(fields: [tableId], references: [id], onDelete: Cascade)
-    createdAt    DateTime      @default(now())
-    updatedAt    DateTime      @updatedAt
+    defaultValue       Json?
+    position           Int           @default(0)
+    tableId            String
+    table              AppTable      @relation(fields: [tableId], references: [id], onDelete: Cascade)
+    createdAt          DateTime      @default(now())
+    updatedAt          DateTime      @updatedAt
 
+    @@unique([tableId, key])
     @@index([tableId])
     @@index([referencesTableId])
     @@index([referencesColumnId])
-    @@unique([tableId, key])
 }
 
 model AppTableRow {
@@ -164,8 +164,9 @@ model VaultRecord {
     id            String   @id @default(cuid())
     userAccountId String
     user          User     @relation(fields: [userAccountId], references: [accountId], onDelete: Cascade)
-    label         String
-    data          Json
+    key           String   @unique
+    value         String
+    isEncrypted   Boolean  @default(true)
     createdAt     DateTime @default(now())
     updatedAt     DateTime @updatedAt
 
@@ -173,23 +174,23 @@ model VaultRecord {
 }
 
 model ConsentRequest {
-    id                 String          @id @default(cuid())
+    id                 String            @id @default(cuid())
     userAccountId      String
-    user               User            @relation(fields: [userAccountId], references: [accountId], onDelete: Cascade)
+    user               User              @relation(fields: [userAccountId], references: [accountId], onDelete: Cascade)
     developerAccountId String
-    developer          Developer       @relation(fields: [developerAccountId], references: [accountId], onDelete: Cascade)
+    developer          Developer         @relation(fields: [developerAccountId], references: [accountId], onDelete: Cascade)
     applicationId      String?
-    application        Application?    @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+    application        Application?      @relation(fields: [applicationId], references: [id], onDelete: SetNull)
     tableId            String?
-    table              AppTable?       @relation(fields: [tableId], references: [id], onDelete: SetNull)
+    table              AppTable?         @relation(fields: [tableId], references: [id], onDelete: SetNull)
     requestedFields    Json
     purpose            String?
-    status             ConsentStatus   @default(PENDING)
+    status             ConsentStatus     @default(PENDING)
     onChainHash        String?
     respondedAt        DateTime?
     logs               ConsentAuditLog[]
-    createdAt          DateTime        @default(now())
-    updatedAt          DateTime        @updatedAt
+    createdAt          DateTime          @default(now())
+    updatedAt          DateTime          @updatedAt
 
     @@index([userAccountId])
     @@index([developerAccountId])
@@ -197,16 +198,16 @@ model ConsentRequest {
 }
 
 model ConsentAuditLog {
-    id               String        @id @default(cuid())
+    id               String         @id @default(cuid())
     consentRequestId String
     consentRequest   ConsentRequest @relation(fields: [consentRequestId], references: [id], onDelete: Cascade)
     actorAccountId   String
-    actor            Account       @relation(fields: [actorAccountId], references: [id], onDelete: Cascade)
+    actor            Account        @relation(fields: [actorAccountId], references: [id], onDelete: Cascade)
     action           ConsentAction
     statusSnapshot   ConsentStatus
     onChainHash      String?
     metadata         Json?
-    createdAt        DateTime      @default(now())
+    createdAt        DateTime       @default(now())
 
     @@index([consentRequestId])
     @@index([actorAccountId])

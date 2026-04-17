@@ -1,8 +1,11 @@
 import type { Request, Response } from "express";
-import { Prisma, prisma } from "../config/db";
+import { prisma } from "../config/db";
 import type { JwtPayload } from "../middlewares/requireAuth";
+import type { VerifiedApplicationAuth } from "../middlewares/verification/verify.middleware";
 
 const getAuth = (res: Response) => res.locals.auth as JwtPayload;
+const getVerifiedApp = (res: Response) =>
+  res.locals.verifiedApp as VerifiedApplicationAuth | undefined;
 
 const getUserAccountId = async (res: Response) => {
   const decoded = getAuth(res);
@@ -19,7 +22,16 @@ const getUserAccountId = async (res: Response) => {
 };
 
 const getDeveloperAccountId = async (res: Response) => {
+  const verifiedApp = getVerifiedApp(res);
+  if (verifiedApp?.developerAccountId) {
+    return verifiedApp.developerAccountId;
+  }
+
   const decoded = getAuth(res);
+  if (!decoded?.userId) {
+    return null;
+  }
+
   const account = await prisma.account.findUnique({
     where: { id: decoded.userId },
     include: { developer: true },
@@ -56,6 +68,21 @@ const getQueryValue = (value: string | string[] | undefined) => {
   if (Array.isArray(value)) return (value[0] || "").trim();
   return "";
 };
+
+// const getQueryValues = (value: string | string[] | undefined) => {
+//   if (typeof value === "string") {
+//     const normalized = value.trim();
+//     return normalized ? [normalized] : [];
+//   }
+
+//   if (Array.isArray(value)) {
+//     return value
+//       .map((item) => item.trim())
+//       .filter((item) => item.length > 0);
+//   }
+
+//   return [];
+// };
 
 const formatConsentStatus = (
   status: "PENDING" | "APPROVED" | "REJECTED" | "REVOKED",
@@ -146,37 +173,178 @@ export const listVaultRecords = async (_req: Request, res: Response) => {
 };
 
 export const createVaultRecord = async (req: Request, res: Response) => {
-  const { label, data } = req.body as {
-    label?: string;
-    data?: Prisma.InputJsonValue;
-  };
-
-  const normalizedLabel = (label || "").trim();
-  if (!normalizedLabel || data === undefined) {
-    return res.status(400).json({ error: "label and data are required" });
+  interface Field {
+    key: string;
+    value: string | { encryptedData: string; iv: string };
+    encrypted: boolean;
   }
 
-  try {
-    const userAccountId = await getUserAccountId(res);
-    if (!userAccountId) {
-      return res.status(403).json({ error: "User access required" });
+  console.log("createVaultRecord called with body:", req.body);
+  const { fields } = req.body as { fields: Field[] };
+
+  if (!Array.isArray(fields) || fields.length === 0) {
+    return res.status(400).json({ error: "Fields array is required" });
+  }
+
+  const userAccountId = await getUserAccountId(res);
+  if (!userAccountId) {
+    return res.status(403).json({ error: "User access required" });
+  }
+
+  // ensure the request doesn't contain duplicate keys (normalized)
+  const seen = new Set<string>();
+  for (const f of fields) {
+    const k = (f.key || "").trim().toLowerCase();
+    if (!k) {
+      return res
+        .status(400)
+        .json({ error: "Each field must include a non-empty key" });
     }
+    if (seen.has(k)) {
+      return res.status(400).json({ error: `Duplicate key in request: ${k}` });
+    }
+    seen.add(k);
+  }
+
+  const createdRecords = [];
+  for (let i = 0; i < fields.length; i++) {
+    const field = fields[i];
+    if (
+      !field.key ||
+      typeof field.key !== "string" ||
+      !field.value ||
+      (typeof field.value !== "string" &&
+        (typeof field.value !== "object" ||
+          !("encryptedData" in field.value) ||
+          !("iv" in field.value))) ||
+      typeof field.encrypted !== "boolean"
+    ) {
+      return res.status(400).json({
+        error: `Invalid field format at index ${i}`,
+        details:
+          "Each field must have a string 'key', a 'value' (string or encrypted object), and boolean 'encrypted'.",
+      });
+    }
+
+    const normalizedKey = field.key.trim().toLowerCase();
+
+    // enforce unique key per user
+    const existing = await prisma.vaultRecord.findFirst({
+      where: { userAccountId, key: normalizedKey },
+      select: { id: true },
+    });
+
+    if (existing) {
+      return res
+        .status(409)
+        .json({ error: `Record with key '${normalizedKey}' already exists` });
+    }
+
+    const value =
+      typeof field.value === "string"
+        ? field.value
+        : JSON.stringify(field.value);
 
     const record = await prisma.vaultRecord.create({
       data: {
         userAccountId,
-        label: normalizedLabel,
-        data,
+        key: normalizedKey,
+        value,
+        isEncrypted: field.encrypted,
+      },
+    });
+    createdRecords.push(record);
+  }
+
+  return res.status(201).json({ records: createdRecords });
+};
+
+export const updateVaultRecord = async (req: Request, res: Response) => {
+  const recordId = getParamValue(req.params.recordId);
+  if (!recordId) return res.status(400).json({ error: "recordId is required" });
+
+  interface Field {
+    key: string;
+    value: string | { encryptedData: string; iv: string };
+    encrypted: boolean;
+  }
+
+  const { fields } = req.body as { fields?: Field[] };
+  if (!Array.isArray(fields) || fields.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Fields array with one item is required" });
+  }
+
+  const field = fields[0];
+
+  if (
+    !field.key ||
+    typeof field.key !== "string" ||
+    !field.value ||
+    (typeof field.value !== "string" &&
+      (typeof field.value !== "object" ||
+        !("encryptedData" in field.value) ||
+        !("iv" in field.value))) ||
+    typeof field.encrypted !== "boolean"
+  ) {
+    return res.status(400).json({ error: "Invalid field format" });
+  }
+
+  try {
+    const userAccountId = await getUserAccountId(res);
+    if (!userAccountId)
+      return res.status(403).json({ error: "User access required" });
+
+    const existingRecord = await prisma.vaultRecord.findFirst({
+      where: { id: recordId, userAccountId },
+      select: { id: true, key: true, value: true, isEncrypted: true },
+    });
+    if (!existingRecord)
+      return res.status(404).json({ error: "Record not found" });
+
+    const normalizedKey = field.key.trim().toLowerCase();
+
+    // ensure uniqueness of key for this user (exclude current record)
+    const conflict = await prisma.vaultRecord.findFirst({
+      where: { userAccountId, key: normalizedKey, NOT: { id: recordId } },
+      select: { id: true },
+    });
+    if (conflict)
+      return res
+        .status(409)
+        .json({ error: `Another record with key '${normalizedKey}' exists` });
+
+    // If the incoming value is empty, keep existing value & isEncrypted flag (allow editing key only)
+    let newValue: string;
+    let newIsEncrypted: boolean;
+
+    if (typeof field.value === "string" && field.value.trim() === "") {
+      newValue = existingRecord.value;
+      newIsEncrypted = existingRecord.isEncrypted;
+    } else {
+      newValue =
+        typeof field.value === "string"
+          ? field.value
+          : JSON.stringify(field.value);
+      newIsEncrypted = field.encrypted;
+    }
+
+    const updated = await prisma.vaultRecord.update({
+      where: { id: recordId },
+      data: {
+        key: normalizedKey,
+        value: newValue,
+        isEncrypted: newIsEncrypted,
       },
     });
 
-    return res.status(201).json({ record });
+    return res.status(200).json({ record: updated });
   } catch (error) {
-    console.error("createVaultRecord error:", error);
-    return res.status(500).json({ error: "Failed to create vault record" });
+    console.error("updateVaultRecord error:", error);
+    return res.status(500).json({ error: "Failed to update vault record" });
   }
 };
-
 export const deleteVaultRecord = async (req: Request, res: Response) => {
   const recordId = getParamValue(req.params.recordId);
   if (!recordId) {
@@ -569,6 +737,8 @@ export const createConsentRequest = async (req: Request, res: Response) => {
       return res.status(403).json({ error: "Developer access required" });
     }
 
+    const verifiedApp = getVerifiedApp(res);
+
     const targetAccount = await prisma.account.findUnique({
       where: { walletAddress: normalizedWalletAddress },
       include: { user: true },
@@ -578,26 +748,62 @@ export const createConsentRequest = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Target user was not found" });
     }
 
-    if (appId) {
+    const normalizedAppId =
+      (appId || "").trim() || verifiedApp?.applicationId || "";
+    const normalizedTableId = (tableId || "").trim();
+
+    if (verifiedApp && normalizedAppId !== verifiedApp.applicationId) {
+      return res.status(403).json({
+        error: "appId does not match the verified application",
+      });
+    }
+
+    if (!normalizedAppId) {
+      return res.status(400).json({ error: "appId is required" });
+    }
+
+    if (normalizedAppId) {
       const ownsApp = await prisma.application.findFirst({
-        where: { id: appId, developerId: developerAccountId },
-        select: { id: true },
+        where: { id: normalizedAppId, developerId: developerAccountId },
+        select: {
+          id: true,
+          tables: {
+            select: {
+              id: true,
+              columns: {
+                select: { key: true },
+              },
+            },
+          },
+        },
       });
       if (!ownsApp) {
         return res.status(404).json({ error: "Application not found" });
       }
-    }
 
-    if (tableId) {
-      const ownsTable = await prisma.appTable.findFirst({
-        where: {
-          id: tableId,
-          application: { developerId: developerAccountId },
-        },
-        select: { id: true },
-      });
-      if (!ownsTable) {
+      const availableTables = normalizedTableId
+        ? ownsApp.tables.filter((table) => table.id === normalizedTableId)
+        : ownsApp.tables;
+
+      if (normalizedTableId && availableTables.length === 0) {
         return res.status(404).json({ error: "Table not found" });
+      }
+
+      const validFieldKeys = new Set(
+        availableTables.flatMap((table) =>
+          table.columns.map((column) => column.key),
+        ),
+      );
+      const invalidFields = normalizedFields.filter(
+        (field) => !validFieldKeys.has(field),
+      );
+
+      if (invalidFields.length > 0) {
+        return res.status(400).json({
+          error:
+            "requestedFields contain columns that do not belong to this application",
+          invalidFields,
+        });
       }
     }
 
@@ -606,8 +812,8 @@ export const createConsentRequest = async (req: Request, res: Response) => {
         data: {
           userAccountId: targetAccount.id,
           developerAccountId,
-          applicationId: appId || null,
-          tableId: tableId || null,
+          applicationId: normalizedAppId,
+          tableId: normalizedTableId || null,
           requestedFields: normalizedFields,
           purpose: (purpose || "").trim() || null,
           status: "PENDING",
@@ -634,5 +840,86 @@ export const createConsentRequest = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("createConsentRequest error:", error);
     return res.status(500).json({ error: "Failed to create consent request" });
+  }
+};
+
+export const getRequiredScopesForConsentRequest = async (
+  req: Request,
+  res: Response,
+) => {
+  try {
+    const verifiedApp = getVerifiedApp(res);
+    const normalizedAppId =
+      getQueryValue(req.query.appId as string | string[] | undefined) ||
+      verifiedApp?.applicationId ||
+      "";
+
+    if (!normalizedAppId) {
+      return res.status(400).json({
+        error: "appId query parameter is required",
+      });
+    }
+
+    const developerAccountId = await getDeveloperAccountId(res);
+    if (!developerAccountId) {
+      return res.status(403).json({ error: "Developer access required" });
+    }
+
+    if (verifiedApp && verifiedApp.applicationId !== normalizedAppId) {
+      return res.status(403).json({
+        error: "appId does not match the verified application",
+      });
+    }
+
+    const ownsApp = await prisma.application.findFirst({
+      where: { id: normalizedAppId, developerId: developerAccountId },
+      select: { id: true },
+    });
+    if (!ownsApp) {
+      return res.status(404).json({ error: "Application not found" });
+    }
+
+    const tables = await prisma.appTable.findMany({
+      where: {
+        applicationId: normalizedAppId,
+        application: { developerId: developerAccountId },
+      },
+      select: {
+        id: true,
+        slug: true,
+        columns: {
+          select: { key: true },
+          orderBy: { position: "asc" },
+        },
+      },
+    });
+
+    if (tables.length === 0) {
+      return res.status(404).json({
+        error: "No tables found for this developer application",
+      });
+    }
+
+    const scopes = tables.flatMap((table) => {
+      const fieldScopes = table.columns.map(
+        (column) => `${table.slug}:${column.key}:read`,
+      );
+
+      return [`${table.slug}:read`, ...fieldScopes];
+    });
+
+    return res.status(200).json({
+      scopes: [...new Set(scopes)],
+      tables: tables.map((table) => ({
+        id: table.id,
+        slug: table.slug,
+        fields: table.columns.map((column) => column.key),
+      })),
+    });
+  } catch (error) {
+    console.error("getRequiredScopesForConsentRequest error:", error);
+    return res
+      .status(500)
+      .json({ error: "Failed to get required scopes for consent request" });
   }
 };

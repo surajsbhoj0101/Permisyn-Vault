@@ -1,16 +1,30 @@
+import { useRef, useEffect } from "react";
 import { Bell, Search } from "lucide-react";
 
 type DashboardNavbarProps = {
   sectionLabel?: string;
   title?: string;
   searchPlaceholder?: string;
+  onSearch?: (q: string) => void;
+  debounceMs?: number;
 };
 
 function DashboardNavbar({
   sectionLabel = "Developer Console",
   title = "Permission Operations",
   searchPlaceholder = "Search apps, policies...",
+  onSearch,
+  debounceMs = 250,
 }: DashboardNavbarProps) {
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
   return (
     <header
       className="sticky top-0 z-20 border-b bg-[rgba(7,16,39,0.38)] px-5 py-4 backdrop-blur-xl"
@@ -42,6 +56,14 @@ function DashboardNavbar({
               className="w-52 bg-transparent text-sm outline-none"
               placeholder={searchPlaceholder}
               style={{ color: "var(--text)" }}
+              aria-label="Global search"
+              onChange={(e) => {
+                if (!onSearch) return;
+                if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+                timeoutRef.current = window.setTimeout(() => {
+                  onSearch(e.target.value || "");
+                }, debounceMs) as unknown as number;
+              }}
             />
           </div>
 

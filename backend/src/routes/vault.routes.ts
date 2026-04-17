@@ -2,6 +2,7 @@ import express from "express";
 import { requireAuth } from "../middlewares/requireAuth";
 import {
   createVaultRecord,
+  updateVaultRecord,
   decideConsentRequest,
   deleteVaultRecord,
   getUserOverview,
@@ -18,6 +19,7 @@ vaultRoutes.use(requireAuth);
 vaultRoutes.get("/overview", getUserOverview);
 vaultRoutes.get("/records", listVaultRecords);
 vaultRoutes.post("/records", createVaultRecord);
+vaultRoutes.put("/records/:recordId", updateVaultRecord);
 vaultRoutes.delete("/records/:recordId", deleteVaultRecord);
 
 vaultRoutes.get("/consent-requests", listUserConsentRequests);

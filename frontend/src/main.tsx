@@ -14,6 +14,7 @@ import UserOverview from "./pages/user_pages/Overview.tsx";
 import UserSessions from "./pages/user_pages/Sessions.tsx";
 import UserAccessLogs from "./pages/user_pages/AccessLogs.tsx";
 import UserSettings from "./pages/user_pages/Settings.tsx";
+import AddRecordPage from "./pages/user_pages/AddRecordPage.tsx";
 
 import "./index.css";
 import App from "./App.tsx";
@@ -101,8 +102,12 @@ const router = createBrowserRouter([
         element: <UserOverview />,
       },
       {
+        path: "add-record",
+        element: <AddRecordPage />,
+      },
+      {
         path: "sessions",
-        element: <UserSessions />,
+        element: <UserSessions />, 
       },
       {
         path: "access-logs",
