@@ -3,7 +3,19 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { ArrowLeft, Trash2 } from "lucide-react";
 
-type AppColumnType = "TEXT" | "NUMBER" | "BOOLEAN" | "DATE_TIME" | "JSON";
+type AppColumnType =
+  | "TEXT"
+  | "NUMBER"
+  | "BOOLEAN"
+  | "DATE_TIME"
+  | "JSON"
+  | "BIGINT"
+  | "FLOAT"
+  | "DOUBLE"
+  | "DECIMAL"
+  | "TIMESTAMP"
+  | "BINARY"
+  | "UUID";
 
 type AppSummary = {
   id: string;
@@ -22,6 +34,11 @@ type AppTableColumn = {
   isForeignKey: boolean;
   referencesTableId: string | null;
   referencesColumnId: string | null;
+  // new fields
+  isAutoIncrement?: boolean;
+  autoIncrementStart?: number | null;
+  autoIncrementStep?: number | null;
+  isEncrypted?: boolean | null;
 };
 
 type AppTable = {
@@ -42,6 +59,11 @@ type TableColumnDraft = {
   isForeignKey: boolean;
   referencesTableId: string;
   referencesColumnId: string;
+  // new draft fields
+  isAutoIncrement?: boolean;
+  autoIncrementStart?: number | string;
+  autoIncrementStep?: number | string;
+  isEncrypted?: boolean;
 };
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
@@ -56,6 +78,11 @@ const defaultColumnDraft = (): TableColumnDraft => ({
   isForeignKey: false,
   referencesTableId: "",
   referencesColumnId: "",
+  isAutoIncrement: false,
+  autoIncrementStart: "",
+  autoIncrementStep: "",
+  isEncrypted: false,
+  
 });
 
 function AppSchemaManager() {
@@ -194,6 +221,22 @@ function AppSchemaManager() {
           referencesColumnId: draft.isForeignKey
             ? draft.referencesColumnId || undefined
             : undefined,
+          // new fields
+          isAutoIncrement: draft.isAutoIncrement || false,
+          autoIncrementStart:
+            typeof draft.autoIncrementStart === "string"
+              ? draft.autoIncrementStart
+                ? Number(draft.autoIncrementStart)
+                : undefined
+              : draft.autoIncrementStart || undefined,
+          autoIncrementStep:
+            typeof draft.autoIncrementStep === "string"
+              ? draft.autoIncrementStep
+                ? Number(draft.autoIncrementStep)
+                : undefined
+              : draft.autoIncrementStep || undefined,
+          isEncrypted: draft.isEncrypted || false,
+          
         },
         { withCredentials: true },
       );
@@ -402,6 +445,22 @@ function AppSchemaManager() {
                               <span className="neo-badge px-2 py-0.5">
                                 {column.type}
                               </span>
+                              {column.isAutoIncrement ? (
+                                <span
+                                  className="neo-badge px-2 py-0.5"
+                                  title="Autoincrement"
+                                >
+                                  AI
+                                </span>
+                              ) : null}
+                              {column.isEncrypted ? (
+                                <span
+                                  className="neo-badge px-2 py-0.5"
+                                  title="Encrypted"
+                                >
+                                  ENC
+                                </span>
+                              ) : null}
                             </div>
                             <button
                               type="button"
@@ -463,6 +522,13 @@ function AppSchemaManager() {
                             <option value="BOOLEAN">BOOLEAN</option>
                             <option value="DATE_TIME">DATE_TIME</option>
                             <option value="JSON">JSON</option>
+                            <option value="BIGINT">BIGINT</option>
+                            <option value="FLOAT">FLOAT</option>
+                            <option value="DOUBLE">DOUBLE</option>
+                            <option value="DECIMAL">DECIMAL</option>
+                            <option value="TIMESTAMP">TIMESTAMP</option>
+                            <option value="BINARY">BINARY</option>
+                            <option value="UUID">UUID</option>
                           </select>
                           <label
                             className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
@@ -548,6 +614,49 @@ function AppSchemaManager() {
                             />
                             FK
                           </label>
+                          <label
+                            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                            style={{
+                              borderColor: "var(--border)",
+                              color: "var(--muted)",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={Boolean(draft.isAutoIncrement)}
+                              onChange={(e) =>
+                                updateColumnDraft(table.id, {
+                                  isAutoIncrement: e.target.checked,
+                                  // sensible defaults when enabling
+                                  autoIncrementStart: e.target.checked
+                                    ? draft.autoIncrementStart || 1
+                                    : "",
+                                  autoIncrementStep: e.target.checked
+                                    ? draft.autoIncrementStep || 1
+                                    : "",
+                                })
+                              }
+                            />
+                            Autoinc
+                          </label>
+                          <label
+                            className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm"
+                            style={{
+                              borderColor: "var(--border)",
+                              color: "var(--muted)",
+                            }}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={Boolean(draft.isEncrypted)}
+                              onChange={(e) =>
+                                updateColumnDraft(table.id, {
+                                  isEncrypted: e.target.checked,
+                                })
+                              }
+                            />
+                            Encrypted
+                          </label>
                         </div>
 
                         {draft.isForeignKey ? (
@@ -589,6 +698,35 @@ function AppSchemaManager() {
                             </select>
                           </div>
                         ) : null}
+
+                        {draft.isAutoIncrement ? (
+                          <div className="mt-3 grid gap-3 md:grid-cols-2">
+                            <input
+                              type="number"
+                              value={draft.autoIncrementStart as any}
+                              onChange={(e) =>
+                                updateColumnDraft(table.id, {
+                                  autoIncrementStart: e.target.value,
+                                })
+                              }
+                              className="saas-input text-sm"
+                              placeholder="Start (e.g. 1)"
+                            />
+                            <input
+                              type="number"
+                              value={draft.autoIncrementStep as any}
+                              onChange={(e) =>
+                                updateColumnDraft(table.id, {
+                                  autoIncrementStep: e.target.value,
+                                })
+                              }
+                              className="saas-input text-sm"
+                              placeholder="Step (e.g. 1)"
+                            />
+                          </div>
+                        ) : null}
+
+                        
 
                         <button
                           type="button"
