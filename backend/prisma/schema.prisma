@@ -28,6 +28,13 @@ enum AppColumnType {
     BOOLEAN
     DATE_TIME
     JSON
+    BIGINT
+    FLOAT
+    DOUBLE
+    DECIMAL
+    TIMESTAMP
+    BINARY
+    UUID
 }
 
 enum ConsentStatus {
@@ -137,6 +144,10 @@ model AppTableColumn {
     referencesTableId  String?
     referencesColumnId String?
     defaultValue       Json?
+    isAutoIncrement    Boolean       @default(false)
+    autoIncrementStart Int?
+    autoIncrementStep  Int?
+    isEncrypted        Boolean       @default(false)
     position           Int           @default(0)
     tableId            String
     table              AppTable      @relation(fields: [tableId], references: [id], onDelete: Cascade)

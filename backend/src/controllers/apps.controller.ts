@@ -9,6 +9,13 @@ const APP_COLUMN_TYPES = [
   "BOOLEAN",
   "DATE_TIME",
   "JSON",
+  "BIGINT",
+  "FLOAT",
+  "DOUBLE",
+  "DECIMAL",
+  "TIMESTAMP",
+  "BINARY",
+  "UUID",
 ] as const;
 
 type AppColumnType = (typeof APP_COLUMN_TYPES)[number];
@@ -410,6 +417,11 @@ export const createColumn = async (req: Request, res: Response) => {
     referencesColumnId,
     defaultValue,
     position,
+    // autoincrement options
+    isAutoIncrement,
+    autoIncrementStart,
+    autoIncrementStep,
+    isEncrypted,
   } = req.body as {
     name?: string;
     key?: string;
@@ -422,6 +434,10 @@ export const createColumn = async (req: Request, res: Response) => {
     referencesColumnId?: string;
     defaultValue?: Prisma.InputJsonValue;
     position?: number;
+    isAutoIncrement?: boolean;
+    autoIncrementStart?: number;
+    autoIncrementStep?: number;
+    isEncrypted?: boolean;
   };
 
   const normalizedName = (name || "").trim();
@@ -446,6 +462,24 @@ export const createColumn = async (req: Request, res: Response) => {
       error: "appId, tableId, name, key and valid type are required",
     });
   }
+
+  // basic validation for new fields
+  const wantsAutoIncrement = Boolean(isAutoIncrement);
+  if (wantsAutoIncrement) {
+    // only allow autoincrement on integer-like types
+    if (!(type === "NUMBER" || type === "BIGINT")) {
+      return res.status(400).json({
+        error: "autoincrement is only supported for NUMBER or BIGINT column types",
+      });
+    }
+    if (wantsForeignKey) {
+      return res.status(400).json({
+        error: "autoincrement columns cannot be foreign keys",
+      });
+    }
+  }
+
+  
 
   if (
     wantsForeignKey &&
@@ -543,10 +577,13 @@ export const createColumn = async (req: Request, res: Response) => {
         isPrimaryKey: wantsPrimaryKey,
         isForeignKey: wantsForeignKey,
         referencesTableId: wantsForeignKey ? normalizedReferencesTableId : null,
-        referencesColumnId: wantsForeignKey
-          ? normalizedReferencesColumnId
-          : null,
+        referencesColumnId: wantsForeignKey ? normalizedReferencesColumnId : null,
         defaultValue,
+        // new fields persisted
+        isAutoIncrement: wantsAutoIncrement,
+        autoIncrementStart: typeof autoIncrementStart === "number" ? autoIncrementStart : null,
+        autoIncrementStep: typeof autoIncrementStep === "number" ? autoIncrementStep : null,
+        isEncrypted: Boolean(isEncrypted),
         position: typeof position === "number" ? position : 0,
       },
     });
