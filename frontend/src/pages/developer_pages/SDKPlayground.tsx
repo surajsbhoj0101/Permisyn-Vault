@@ -2,6 +2,7 @@ import { useMemo, useEffect, useState } from "react";
 import { getAddress } from "ethers";
 import {
   AuthFlow,
+  ConsentRequest,
   SDKClient,
   type AuthStatus,
   type AuthenticatedUser,
@@ -20,9 +21,9 @@ export default function SDKPlayground() {
     () =>
       new SDKClient({
         apiBaseUrl: API_BASE_URL,
-        authEndpoint: "/api/auth/verify",
-        appName: "Permisyn Developer Playground",
         formatAddress: (address) => getAddress(address),
+        appId: import.meta.env.VITE_APP_ID,
+        apiKey: import.meta.env.VITE_API_KEY,
       }),
     [],
   );
@@ -64,6 +65,19 @@ export default function SDKPlayground() {
       {error ? (
         <div className="mt-4 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
           {error}
+        </div>
+      ) : null}
+
+      {user?.user.walletAddress ? (
+        <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-5">
+          <ConsentRequest
+            client={client}
+            userWalletAddress={user.user.walletAddress}
+            defaultPurpose="Requesting app access for the signed-in wallet."
+            onError={(caughtError) => {
+              setError(caughtError.message);
+            }}
+          />
         </div>
       ) : null}
     </main>
